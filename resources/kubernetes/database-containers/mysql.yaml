@@ -43,7 +43,7 @@ spec:
             - name: MYSQL_PASSWORD
               value: password123
             - name: MYSQL_ROOT_PASSWORD
-              value: 8QeO1qaL
+              value: random_password
             - name: MYSQL_USER
               value: user123
           image: bitnami/mysql:5.7
