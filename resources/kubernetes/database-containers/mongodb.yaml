@@ -1,0 +1,54 @@
+---
+# Source: mongo manual
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: mongo
+    velocity.tech.v1/exposures-tcp-user: root
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=mongodb).env.(name=MONGODB_ROOT_PASSWORD).value"
+    velocity.tech.v1/exposures-tcp-scheme: "mongodb"
+  name: mongodb
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: mongodb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: mongodb
+    spec:
+      containers:
+        - env:
+            - name: MONGODB_ROOT_PASSWORD
+              value: "password1234"
+          image: bitnami/mongodb:4.4
+          imagePullPolicy: IfNotPresent
+          name: mongodb
+          ports:
+            - containerPort: 27017
+              protocol: TCP
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mongodb
+  name: mongodb
+spec:
+  ports:
+    - name: tcp
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    name: mongodb
+  type: ClusterIP

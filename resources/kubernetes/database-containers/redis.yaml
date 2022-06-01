@@ -1,0 +1,55 @@
+---
+# Source: Redis cache
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: cache
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=cache).env.(name=REDIS_PASSWORD).value"
+    velocity.tech.v1/exposures-tcp-scheme: "redis"
+  name: cache
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: cache
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: cache
+    spec:
+      containers:
+        - env:
+            - name: REDIS_PASSWORD
+              value: "password123"
+          image: bitnami/redis:6.0
+          imagePullPolicy: IfNotPresent
+          name: cache
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 250m
+              memory: 200Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache
+spec:
+  ports:
+    - name: tcp
+      port: 6379
+      protocol: TCP
+      targetPort: 6379
+  selector:
+    name: cache
+  type: ClusterIP
