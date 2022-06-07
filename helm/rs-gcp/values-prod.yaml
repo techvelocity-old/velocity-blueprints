@@ -1,0 +1,9 @@
+pubsub_sub_name: sub
+pubsub_topic_name: test
+bucket_name: my-bucket
+project_id: prod
+image: gcr.io/prod/service-gcp
+db_user: prod
+db_pass: prod
+db_host: 1.2.3.4
+db_port: 1234

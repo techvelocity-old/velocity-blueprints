@@ -1,0 +1,10 @@
+{{ if .Values.provision_resources }}
+apiVersion: sqs.velocity.tech/v1
+kind: Queue
+metadata:
+  annotations:
+    velocity.tech.v1/id: queue
+  name: my-queue
+spec:
+  queueName: {{ .Values.queue_name }}
+{{ end }}
