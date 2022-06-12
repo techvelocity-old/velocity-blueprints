@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: bucket, queue, psql
+    velocity.tech.v1/id: service
+  name: service
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: web
+        octopusexport: OctopusExport
+    spec:
+      containers:
+        - name: service
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: BUCKET_NAME
+              value: {{ .Values.bucket_name }}
+            - name: DB_HOST
+              value: {{ .Values.db_host }}
+            - name: DB_PORT
+              value: {{ .Values.db_port }}
+            - name: DB_USER
+              value: {{ .Values.db_user }}
+            - name: DB_PASSWORD
+              value: {{ .Values.db_pass }}
+            - name: QUEUE_NAME
+              value: {{ .Values.queue_name }}
