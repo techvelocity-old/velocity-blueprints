@@ -28,14 +28,20 @@ spec:
             - containerPort: 80
           env:
             - name: BUCKET_NAME
-              value: {{ .Values.bucket_name }}
+              value: {{ .Values.bucket_name | toJson }}
             - name: DB_HOST
-              value: {{ .Values.db_host }}
+              value: {{ .Values.db_host | toJson }}
             - name: DB_PORT
-              value: {{ .Values.db_port }}
+              value: {{ .Values.db_port | toJson }}
             - name: DB_USER
-              value: {{ .Values.db_user }}
-            - name: DB_PASSWORD
-              value: {{ .Values.db_pass }}
+              value: {{ .Values.db_user | toJson }}
+            - name: DB_PASS
+              value: {{ .Values.db_pass | toJson }}
             - name: QUEUE_NAME
-              value: {{ .Values.queue_name }}
+              value: {{ .Values.queue_name | toJson }}
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ .Values.aws_access_key_id }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ .Values.aws_secret_access_key }}
+            - name: AWS_SESSION_TOKEN
+              value: {{ .Values.aws_session_token }}

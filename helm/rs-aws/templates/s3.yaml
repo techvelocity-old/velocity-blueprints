@@ -4,7 +4,7 @@ kind: Bucket
 metadata:
   annotations:
     velocity.tech.v1/id: bucket
-  name: {{ .Values.bucket_name }}
+  name: {{ .Values.bucket_name | toJson}}
 spec:
-  name: {{ .Values.bucket_name }}
+  name: {{ .Values.bucket_name | toJson }}
 {{ end }}

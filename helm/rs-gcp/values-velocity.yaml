@@ -1,8 +1,8 @@
-# {velocity.tech.v1/envID} will be translated to unique ID per environment
+# {velocity.v1.envName} will be translated to unique ID per environment
 
-pubsub_sub_name: "{velocity.tech.v1/envID}-sub"
-pubsub_topic_name: "{velocity.tech.v1/envID}-test"
-bucket_name: "{velocity.tech.v1/envID}-my-bucket"
+pubsub_sub_name: "{velocity.v1.envName}-sub"
+pubsub_topic_name: "{velocity.v1.envName}-test"
+bucket_name: "{velocity.v1.generate:random}-{velocity.v1.envName}-my-bucket"
 project_id: "velocity"
 image: "gcr.io/prod/service-gcp"
 db_user: "{velocity.v1:mysql.exposures(port=mysql).user}"

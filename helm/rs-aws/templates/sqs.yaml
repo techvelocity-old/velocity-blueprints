@@ -4,7 +4,7 @@ kind: Queue
 metadata:
   annotations:
     velocity.tech.v1/id: queue
-  name: my-queue
+  name: {{ .Values.queue_name | toJson }}
 spec:
-  queueName: {{ .Values.queue_name }}
+  queueName: {{ .Values.queue_name | toJson }}
 {{ end }}

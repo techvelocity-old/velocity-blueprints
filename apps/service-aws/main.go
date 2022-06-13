@@ -10,6 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs"
 	"log"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 func mustGetenv(k string) string {
@@ -25,7 +27,7 @@ func main() {
 		Region: aws.String("eu-central-1")},
 	)
 	if err != nil {
-		panic(err)
+		log.Fatalf("session.NewSession: %v", err)
 	}
 
 	// S3 Demo
@@ -42,17 +44,17 @@ func main() {
 			case s3.ErrCodeNoSuchBucket:
 				fmt.Println(s3.ErrCodeNoSuchBucket, aerr.Error())
 			default:
-				panic(aerr)
+				log.Fatalf("Unhandled error: %v", err)
 			}
 		} else {
 			// Print the error, cast err to awserr.Error to get the Code and
 			// Message from an error.
-			panic(err)
+			log.Fatalf("Unhandled error: %v", err)
 		}
 		return
 	}
 
-	fmt.Println(result)
+	log.Printf("S3 ListObjects: %v", result)
 
 	// SQS demo
 	sqsSvc := sqs.New(newSession)
@@ -61,24 +63,27 @@ func main() {
 		QueueName: aws.String(mustGetenv("QUEUE_NAME")),
 	})
 	if err != nil {
-		panic(err)
+		log.Fatalf("sqsSvc.GetQueueUrl: %v", err)
 	}
 
-	fmt.Println(sqsResult)
+	log.Printf("Queue URL: %v\n", *sqsResult.QueueUrl)
 
 	// PSQL demo
 	psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
 		"password=%s dbname=%s sslmode=disable",
-		mustGetenv("DB_HOST"), mustGetenv("DB_PORT"), mustGetenv("DB_USER"), mustGetenv("DB_PASS"), "db")
+		mustGetenv("DB_HOST"), mustGetenv("DB_PORT"), mustGetenv("DB_USER"), mustGetenv("DB_PASS"), "app_development")
 
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err)
+		log.Fatalf("sql.Open: %v", err)
 	}
 	defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		panic(err)
+		log.Fatalf("db.Ping: %v", err)
 	}
+
+	log.Println("DB connection successful!")
+	select {}
 }
