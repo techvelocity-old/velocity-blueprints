@@ -2,6 +2,7 @@
 
 bucket_name: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
 queue_name: "{velocity.v1.envName}-my-queue"
+table_name: "{velocity.v1.envName}-my-table"
 db_user: "{velocity.v1:psql.exposures(port=tcp).user}"
 db_pass: "{velocity.v1:psql.exposures(port=tcp).password}"
 db_host: "{velocity.v1:psql.exposures(port=tcp).host}"
