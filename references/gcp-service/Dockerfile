@@ -10,8 +10,8 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /service-gcp
+RUN go build -o /gcp-service
 
 EXPOSE 8080
 
-CMD [ "/service-gcp" ]
+CMD [ "/gcp-service" ]

@@ -19,18 +19,15 @@ func mustGetenv(k string) string {
 
 func main() {
 	newSession, err := session.NewSession(&aws.Config{
-		Region: aws.String("eu-central-1")},
+		Region: aws.String(mustGetenv("AWS_REGION"))},
 	)
 	if err != nil {
 		log.Fatalf("session.NewSession: %v", err)
 	}
 
 	tests3(newSession)
-
 	testSQS(newSession)
-
 	testDynamodb(newSession)
-
 	testPSQL()
 
 	select {}

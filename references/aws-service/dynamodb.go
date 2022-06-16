@@ -8,7 +8,6 @@ import (
 )
 
 func testDynamodb(session *session.Session) {
-	// DynamoDB demo
 	dynamodbSvc := dynamodb.New(session)
 
 	dynamodbResult, err := dynamodbSvc.DescribeTable(&dynamodb.DescribeTableInput{

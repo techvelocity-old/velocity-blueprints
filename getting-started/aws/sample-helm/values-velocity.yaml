@@ -7,8 +7,8 @@ db_user: "{velocity.v1:psql.exposures(port=tcp).user}"
 db_pass: "{velocity.v1:psql.exposures(port=tcp).password}"
 db_host: "{velocity.v1:psql.exposures(port=tcp).host}"
 db_port: "{velocity.v1:psql.exposures(port=tcp).port}"
-image: "gcr.io/my-repo/service-aws"
-aws_access_key_id: 'my-access-key-id'
-aws_secret_access_key: 'my-secret-access-key'
-aws_session_token: 'my-session-token'
+image: "gcr.io/velocity-playground/aws-service"
+aws_access_key_id: 'aws_access_key_id'
+aws_secret_access_key: 'aws_secret_access_key'
+aws_session_token: 'aws_session_token'
 provision_resources: true

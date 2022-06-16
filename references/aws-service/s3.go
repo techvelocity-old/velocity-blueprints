@@ -10,7 +10,6 @@ import (
 )
 
 func tests3(session *session.Session) {
-	// S3 Demo
 	svc := s3.New(session)
 	input := &s3.ListObjectsInput{
 		Bucket:  aws.String(mustGetenv("BUCKET_NAME")),

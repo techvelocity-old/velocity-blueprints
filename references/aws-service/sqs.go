@@ -8,7 +8,6 @@ import (
 )
 
 func testSQS(session *session.Session) {
-	// SQS demo
 	sqsSvc := sqs.New(session)
 
 	sqsResult, err := sqsSvc.GetQueueUrl(&sqs.GetQueueUrlInput{
@@ -19,5 +18,4 @@ func testSQS(session *session.Session) {
 	}
 
 	log.Printf("Queue URL: %v\n", *sqsResult.QueueUrl)
-
 }

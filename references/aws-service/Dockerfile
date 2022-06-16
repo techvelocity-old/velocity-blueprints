@@ -10,8 +10,8 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /service-aws
+RUN go build -o /aws-service
 
 EXPOSE 8080
 
-CMD [ "/service-aws" ]
+CMD [ "/aws-service" ]
