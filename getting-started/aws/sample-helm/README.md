@@ -1,5 +1,8 @@
 # AWS Helm Sample
 
+### What is being deployed?
+![](../../../references/aws-service/media/chart.png)
+
 ### HOWTO Dry run
 
 To dry run the helm chart for prod environment, run the following command:
@@ -12,6 +15,7 @@ To dry run the helm chart for velocity environments, run the following command:
 ```shell
 helm template --set provision_resources=true --values values-velocity.yaml . > velocity.yaml
 ```
+
 
 
 ### TODO
