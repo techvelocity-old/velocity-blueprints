@@ -8,10 +8,13 @@ Here we deploy GCP-service and all of it's dependencies, as shown in the followi
 [GCP-Service](../../../references/gcp-service) is a reference service that is used to act as an example application in GCP environments.
 
 GCP-Service depends on and uses the following services:
-1. GCS Bucket
-2. Pub/Sub Topic
-3. Pub/Sub Subscription (Attached to the Topic)
-4. MySQL Database (Runs as a container and not as a cloud managed service)
+1. [GCS Bucket](templates/gcs.yaml)
+2. [Pub/Sub Topic](templates/pubsub.yaml)
+3. [Pub/Sub Subscription](templates/pubsub.yaml) (Attached to the Topic)
+4. [MySQL Database](templates/mysql.yaml) (Runs as a container and not as a cloud managed service)
+    1. The k8s manifest code for MySQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/mysql.yaml).
+
+The k8s manifest code is available under the [templates](templates) directory.
 
 
 ### Helm

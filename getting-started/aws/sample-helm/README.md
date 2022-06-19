@@ -8,10 +8,14 @@ Here we deploy AWS-service and all of it's dependencies, as shown in the followi
 [AWS-Service](../../../references/aws-service) is a reference service that is used to act as an example application in AWS environments.
 
 AWS-Service depends on and uses the following services:
-1. S3 bucket
-2. SQS queue
-3. DynamoDB Table
-4. PostgreSQL Database (Runs as a container and not as a cloud managed service)
+1. [S3 bucket](templates/s3.yaml)
+2. [SQS queue](templates/sqs.yaml)
+3. [DynamoDB Table](templates/dynamodb.yaml)
+4. [PostgreSQL Database](templates/postgresql.yaml) (Runs as a container and not as a cloud managed service)
+   1. The k8s manifest code for PostgreSQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/postgresql.yaml).
+
+The k8s manifest code is available under the [templates](templates) directory.
+
 
 ### Helm
 
