@@ -6,7 +6,7 @@ metadata:
     cnrm.cloud.google.com/force-destroy: "true"
     cnrm.cloud.google.com/project-id: {{ .Values.project_id }}
     velocity.tech.v1/id: bucket
-  name: {{ .Values.bucket_name }}
+  name: {{ .Values.bucket_name | toJson }}
 spec:
   versioning:
     enabled: true
