@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: pubsub-topic, pubsub-sub, mysql, bucket
+    velocity.tech.v1/id: service
+  name: service
+  labels:
+    app: web
+spec:
+  selector:
+    matchLabels:
+      octopusexport: OctopusExport
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: web
+        octopusexport: OctopusExport
+    spec:
+      serviceAccountName: ksa
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
+      containers:
+        - name: service
+          image: gcr.io/velocity-playground/gcp-service
+          ports:
+            - containerPort: 80
+          env:
+            - name: PUBSUB_TOPIC
+              value: "{velocity.v1.envName}-test"
+            - name: PUBSUB_SUB
+              value: "{velocity.v1.envName}-sub"
+            - name: GOOGLE_CLOUD_PROJECT
+              value: velocity
+            - name: BUCKET_NAME
+              value: "{velocity.v1.generate:random}-{velocity.v1.envName}-my-bucket"
+            - name: DB_HOST
+              value: "{velocity.v1:mysql.exposures(port=mysql).host}"

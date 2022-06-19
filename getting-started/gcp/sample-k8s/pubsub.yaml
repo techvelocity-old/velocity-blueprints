@@ -1,0 +1,18 @@
+apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
+kind: PubSubSubscription
+metadata:
+  annotations:
+    velocity.tech.v1/id: pubsub-sub
+    cnrm.cloud.google.com/project-id: velocity
+  name: "{velocity.v1.envName}-sub"
+spec:
+  topicRef:
+    name: "{velocity.v1.envName}-test"
+---
+apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
+kind: PubSubTopic
+metadata:
+  annotations:
+    velocity.tech/v1/id: pubsub-topic
+    cnrm.cloud.google.com/project-id: velocity
+  name: "{velocity.v1.envName}-test"
