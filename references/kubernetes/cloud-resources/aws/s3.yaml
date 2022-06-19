@@ -1,0 +1,10 @@
+# API Reference is at https://aws-controllers-k8s.github.io/community/reference/s3/v1alpha1/bucket/
+
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  annotations:
+    velocity.tech.v1/id: bucket
+  name: my-bucket
+spec:
+  name: my-bucket
