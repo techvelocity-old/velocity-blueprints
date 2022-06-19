@@ -1,9 +1,9 @@
 # {velocity.v1.envName} will be translated to unique ID per environment
 
 pubsub_sub_name: "{velocity.v1.envName}-sub"
-pubsub_topic_name: "{velocity.v1.envName}-test"
+pubsub_topic_name: "{velocity.v1.envName}-topic"
 bucket_name: "{velocity.v1.generate:random}-{velocity.v1.envName}-my-bucket"
-project_id: "velocity"
+project_id: "velocity-playground"
 image: "gcr.io/velocity-playground/gcp-service"
 db_user: "{velocity.v1:mysql.exposures(port=mysql).user}"
 db_pass: "{velocity.v1:mysql.exposures(port=mysql).password}"

@@ -14,7 +14,7 @@ apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
 kind: PubSubTopic
 metadata:
   annotations:
-    velocity.tech/v1/id: pubsub-topic
+    velocity.tech.v1/id: pubsub-topic
     cnrm.cloud.google.com/project-id: {{ .Values.project_id }}
   name: {{ .Values.pubsub_topic_name | toJson  }}
 {{ end }}
