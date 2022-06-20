@@ -21,7 +21,7 @@ metadata:
     velocity.tech.v1/exposures-tcp-user: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_USERNAME).value"
     velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_PASSWORD).value"
     velocity.tech.v1/exposures-tcp-scheme: "postgres"
-    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_DATABASE).value"
+    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_DATABASE).value" # Velocity exported variable
   name: postgres-database
 spec:
   replicas: 1

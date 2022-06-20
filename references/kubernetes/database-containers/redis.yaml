@@ -4,9 +4,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/id: cache
-    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=cache).env.(name=REDIS_PASSWORD).value"
-    velocity.tech.v1/exposures-tcp-scheme: "redis"
+    velocity.tech.v1/id: cache # Velocity service identifier
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=cache).env.(name=REDIS_PASSWORD).value" # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-scheme: "redis" # Velocity connectivity details
   name: cache
 spec:
   replicas: 1

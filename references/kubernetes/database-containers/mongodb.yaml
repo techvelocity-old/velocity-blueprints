@@ -4,10 +4,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/id: mongo
-    velocity.tech.v1/exposures-tcp-user: root
-    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=mongodb).env.(name=MONGODB_ROOT_PASSWORD).value"
-    velocity.tech.v1/exposures-tcp-scheme: "mongodb"
+    velocity.tech.v1/id: mongo # Velocity service identifier
+    velocity.tech.v1/exposures-tcp-user: root # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=mongodb).env.(name=MONGODB_ROOT_PASSWORD).value" # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-scheme: "mongodb" # Velocity connectivity details
   name: mongodb
 spec:
   replicas: 1
