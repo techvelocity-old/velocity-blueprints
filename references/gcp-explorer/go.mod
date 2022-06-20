@@ -1,4 +1,4 @@
-module github.com/techvelocity/velocity-blueprints/references/gcp-service
+module github.com/techvelocity/velocity-blueprints/references/gcp-explorer
 
 go 1.18
 

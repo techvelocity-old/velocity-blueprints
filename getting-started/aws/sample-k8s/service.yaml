@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo
-    velocity.tech.v1/id: service
+    velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo # Velocity dependencies declaration
+    velocity.tech.v1/id: service # Velocity service identifier
   name: service
   labels:
     app: web
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: service
-          image: gcr.io/velocity-playground/aws-service
+          image: gcr.io/velocity-playground/aws-explorer
           imagePullPolicy: Always
           ports:
             - containerPort: 80

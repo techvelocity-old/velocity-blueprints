@@ -1,4 +1,4 @@
-module github.com/techvelocity/velocity-blueprints/references/aws-service
+module github.com/techvelocity/velocity-blueprints/references/aws-explorer
 
 go 1.18
 

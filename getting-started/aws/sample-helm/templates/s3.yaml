@@ -3,7 +3,7 @@ apiVersion: s3.services.k8s.aws/v1alpha1
 kind: Bucket
 metadata:
   annotations:
-    velocity.tech.v1/id: bucket
+    velocity.tech.v1/id: bucket # Velocity service identifier
   name: {{ .Values.bucket_name | toJson}}
 spec:
   name: {{ .Values.bucket_name | toJson }}

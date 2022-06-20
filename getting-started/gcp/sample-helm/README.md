@@ -1,13 +1,13 @@
 # GCP Helm Sample
 
 ### What is being deployed?
-Here we deploy GCP-service and all of it's dependencies, as shown in the following chart:
+Here we deploy GCP-Explorer and all of it's dependencies, as shown in the following chart:
 
-![](../../../references/gcp-service/media/chart.png)
+![](../../../references/gcp-explorer/media/chart.png)
 
-[GCP-Service](../../../references/gcp-service) is a reference service that is used to act as an example application in GCP environments.
+[GCP-Explorer](../../../references/gcp-explorer) is a reference service that is used to act as an example application in GCP environments.
 
-GCP-Service depends on and uses the following services:
+GCP-Explorer depends on and uses the following services:
 1. [GCS Bucket](templates/gcs.yaml)
 2. [Pub/Sub Topic](templates/pubsub.yaml)
 3. [Pub/Sub Subscription](templates/pubsub.yaml) (Attached to the Topic)

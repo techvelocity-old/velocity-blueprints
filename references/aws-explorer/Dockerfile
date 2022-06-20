@@ -10,8 +10,8 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN go build -o /gcp-service
+RUN go build -o /aws-explorer
 
 EXPOSE 8080
 
-CMD [ "/gcp-service" ]
+CMD [ "/aws-explorer" ]

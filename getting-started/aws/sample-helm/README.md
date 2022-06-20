@@ -1,13 +1,13 @@
 # AWS Helm Sample
 
 ### What is being deployed?
-Here we deploy AWS-service and all of it's dependencies, as shown in the following chart:
+Here we deploy AWS-Explorer and all of it's dependencies, as shown in the following chart:
 
-![](../../../references/aws-service/media/chart.png)
+![](../../../references/aws-explorer/media/chart.png)
 
-[AWS-Service](../../../references/aws-service) is a reference service that is used to act as an example application in AWS environments.
+[AWS-Explorer](../../../references/aws-explorer) is a reference service that is used to act as an example application in AWS environments.
 
-AWS-Service depends on and uses the following services:
+AWS-Explorer depends on and uses the following services:
 1. [S3 bucket](templates/s3.yaml)
 2. [SQS queue](templates/sqs.yaml)
 3. [DynamoDB Table](templates/dynamodb.yaml)
