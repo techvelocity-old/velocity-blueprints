@@ -1,0 +1,18 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "migration-job"
+  annotations:
+    velocity.tech.v1/id: seeding # Velocity service identifier
+    velocity.tech.v1/dependsOn: psql # Velocity dependencies declaration
+spec:
+  template:
+    metadata:
+      name: "migration-job-pod"
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: "db-migrations"
+          image: migrate/migrate:latest
+          command: ['/migrate']
+          args: ["-source", "github://techvelocity/velocity-blueprints/references/db-migrations", "-database", 'postgres://{{ .Values.db_host | toJson }}:{{ .Values.db_port | toJson }}/app_development', "up"]
