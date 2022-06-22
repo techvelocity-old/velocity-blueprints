@@ -1,7 +1,7 @@
 # AWS Helm Sample
 
 ### What is being deployed?
-Here we deploy AWS-Explorer and all of it's dependencies, as shown in the following chart:
+Here we deploy AWS-Explorer and all of its dependencies, as shown in the following chart:
 
 ![](../../../references/aws-explorer/media/chart.png)
 
@@ -14,8 +14,10 @@ AWS-Explorer depends on and uses the following services:
 4. [PostgreSQL Database](templates/postgresql.yaml) (Runs as a container and not as a cloud managed service)
    1. The k8s manifest code for PostgreSQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/postgresql.yaml).
 5. [DB Migration Seeding Job](templates/seeding.yaml)
-   1. This k8s Job runs DB migration scripts to prepare the PostgreSQL DB for being used by the application
-   2. The migrations scripts can be seen [here](../../../references/db-migrations)
+   1. Because our app expects a certain DB schema that it can work with, we need to apply DB schema migration scripts.
+   2. This k8s seeding Job runs DB migration scripts against the PostgreSQL DB.
+   3. A k8s job will run once (considering it finished successfully) just after the PostgreSQL DB has started, and before the application has started.
+   4. The migrations scripts it executes can be seen in [/references/db-migrations](../../../references/db-migrations)
 
 The k8s manifest code is available under the [templates](templates) directory.
 
