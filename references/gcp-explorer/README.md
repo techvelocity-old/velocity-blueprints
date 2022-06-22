@@ -11,3 +11,5 @@ GCP-Explorer depends on and uses the following services:
 3. Pub/Sub Subscription (Attached to the Topic)
 4. MySQL Database (Runs as a container and not as a cloud managed service)
 
+### TODO
+* Add actual logic that relies on the DB schema migration result

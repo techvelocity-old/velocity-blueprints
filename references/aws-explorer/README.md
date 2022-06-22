@@ -14,3 +14,6 @@ AWS-Explorer depends on and uses the following services:
 The AWS-Explorer service prints details about its dependencies upon booting.
 
 The AWS-Explorer service also exposes an HTTP server that prints the contents of the S3 bucket when called in endpoint `/`
+
+### TODO
+* Add actual logic that relies on the DB schema migration result
