@@ -3,10 +3,10 @@ kind: Deployment
 metadata:
   annotations:
     velocity.tech.v1/dependsOn: pubsub-topic, pubsub-sub, mysql, bucket # Velocity dependencies declaration
-    velocity.tech.v1/id: service # Velocity service identifier
-  name: service
+    velocity.tech.v1/id: explorer # Velocity service identifier
+  name: explorer
   labels:
-    app: web
+    app: explorer
 spec:
   selector:
     matchLabels:
@@ -17,25 +17,26 @@ spec:
   template:
     metadata:
       labels:
-        app: web
+        app: explorer
         octopusexport: OctopusExport
     spec:
       serviceAccountName: ksa
       nodeSelector:
         iam.gke.io/gke-metadata-server-enabled: "true"
       containers:
-        - name: service
-          image: {{ .Values.image }}
+        - name: explorer
+          image: gcr.io/velocity-playground/gcp-explorer
           ports:
             - containerPort: 80
           env:
             - name: PUBSUB_TOPIC
-              value: {{ .Values.pubsub_topic_name | toJson  }}
+              value: "{velocity.v1.envName}-topic"
             - name: PUBSUB_SUB
-              value: {{ .Values.pubsub_sub_name | toJson  }}
+              value: "{velocity.v1.envName}-sub"
             - name: GOOGLE_CLOUD_PROJECT
-              value: {{ .Values.project_id }}
+              value: velocity-playground
             - name: BUCKET_NAME
-              value: {{ .Values.bucket_name | toJson  }}
+              value: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
             - name: DB_HOST
-              value: {{ .Values.db_host | toJson  }}
+              value: "{velocity.v1:mysql.exposures(port=mysql).host}"
+---

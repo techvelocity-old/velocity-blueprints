@@ -9,6 +9,7 @@ spec:
   topicRef:
     name: "{velocity.v1.envName}-topic"
 ---
+# Source: rs-gcp/templates/pubsub.yaml
 apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
 kind: PubSubTopic
 metadata:
@@ -16,3 +17,4 @@ metadata:
     velocity.tech.v1/id: pubsub-topic # Velocity service identifier
     cnrm.cloud.google.com/project-id: velocity-playground
   name: "{velocity.v1.envName}-topic"
+---

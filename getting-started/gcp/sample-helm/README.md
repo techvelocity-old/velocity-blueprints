@@ -7,14 +7,13 @@ Here we deploy GCP-Explorer and all of it's dependencies, as shown in the follow
 
 [GCP-Explorer](../../../references/gcp-explorer) is a reference service that is used to act as an example application in GCP environments.
 
-GCP-Explorer depends on and uses the following services:
-1. [GCS Bucket](templates/gcs.yaml) (Runs as an actual cloud resource)
-2. [Pub/Sub Topic](templates/pubsub.yaml) (Runs as an actual cloud resource)
-3. [Pub/Sub Subscription](templates/pubsub.yaml) (Runs as an actual cloud resource - Attached to the Topic)
-4. [MySQL Database](templates/mysql.yaml) (Runs as a container and not as a cloud managed service)
-    1. The k8s manifest code for MySQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/mysql.yaml).
-
-The k8s manifest code is available under the [templates](templates) directory.
+The k8s manifest code is available under the helm [templates](templates) directory and consists of:
+1. [GCP-Explorer](templates/explorer.yaml) which is the example application. It depends on:
+   1. [GCS Bucket](templates/gcs.yaml) (Runs as an actual cloud resource)
+   2. [Pub/Sub Topic](templates/pubsub.yaml) (Runs as an actual cloud resource)
+   3. [Pub/Sub Subscription](templates/pubsub.yaml) (Runs as an actual cloud resource - Attached to the Topic)
+   4. [MySQL Database](templates/mysql.yaml) (Runs as a container and not as a cloud managed service)
+       1. The k8s manifest code for MySQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/mysql.yaml).
 
 
 ### Helm

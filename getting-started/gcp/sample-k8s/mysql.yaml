@@ -1,3 +1,5 @@
+---
+# Source: mysql manual
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -95,3 +97,4 @@ spec:
       - name: persistent-mysql-database-0
         persistentVolumeClaim:
           claimName: pvc-10gb
+---
