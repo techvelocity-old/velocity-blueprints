@@ -2,13 +2,12 @@ package main
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"log"
 )
 
-func testDynamodb(session *session.Session) {
-	dynamodbSvc := dynamodb.New(session)
+func testDynamodb() {
+	dynamodbSvc := dynamodb.New(awsSession)
 
 	dynamodbResult, err := dynamodbSvc.DescribeTable(&dynamodb.DescribeTableInput{
 		TableName: aws.String(mustGetenv("DYNAMODB_TABLE_NAME")),

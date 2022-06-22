@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"log"
 )
 
-func tests3(session *session.Session) {
-	svc := s3.New(session)
+func gets3Objects() *s3.ListObjectsOutput {
+	svc := s3.New(awsSession)
 	input := &s3.ListObjectsInput{
 		Bucket:  aws.String(mustGetenv("BUCKET_NAME")),
 		MaxKeys: aws.Int64(2),
@@ -30,8 +29,12 @@ func tests3(session *session.Session) {
 			// Message from an error.
 			log.Fatalf("Unhandled error: %v", err)
 		}
-		return
+		return nil
 	}
 
-	log.Printf("S3 ListObjects: %v", result)
+	return result
+}
+
+func tests3() {
+	log.Printf("S3 ListObjects: %v", gets3Objects())
 }

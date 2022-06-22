@@ -3,28 +3,30 @@ kind: Deployment
 metadata:
   annotations:
     velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo, seeding # Velocity dependencies declaration
-    velocity.tech.v1/id: service # Velocity service identifier
-  name: service
+    velocity.tech.v1/id: explorer # Velocity service identifier
+    velocity.tech.v1/exposures-http-isPublic: "true" # Velocity public URI exposure of port name "http"
+    velocity.tech.v1/exposures-http-publicScheme: "https" # Velocity public URI exposure scheme of port name "http"
+  name: explorer
   labels:
-    app: web
+    app: explorer
 spec:
   selector:
     matchLabels:
-      app: web
+      app: explorer
   replicas: 1
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app: web
+        app: explorer
     spec:
       containers:
-        - name: service
+        - name: explorer
           image: {{ .Values.image }}
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
             - name: AWS_REGION
               value: {{ .Values.region }}
@@ -48,3 +50,17 @@ spec:
               value: {{ .Values.aws_secret_access_key }}
             - name: AWS_SESSION_TOKEN
               value: {{ .Values.aws_session_token }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorer
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: explorer
