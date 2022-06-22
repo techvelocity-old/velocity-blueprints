@@ -13,7 +13,7 @@ spec:
     metadata:
       name: "migration-job-pod"
     spec:
-      restartPolicy: Never
+      restartPolicy: OnFailure
       containers:
         - name: "db-migrations"
           image: migrate/migrate:latest
