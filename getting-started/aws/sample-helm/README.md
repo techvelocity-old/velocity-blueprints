@@ -21,12 +21,12 @@ AWS-Explorer depends on and uses the following services:
 
 The k8s manifest code is available under the [templates](templates) directory.
 
-
 ### Helm
 
 `velues-prod.yaml` is the file the contains the values that fit your production environment.
 
 `values-velocity.yaml` is the file the contains the values that fit your velocity environments.
+
 
 ### HOWTO Dry run
 
