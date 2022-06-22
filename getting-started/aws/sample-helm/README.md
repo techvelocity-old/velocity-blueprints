@@ -8,9 +8,9 @@ Here we deploy AWS-Explorer and all of its dependencies, as shown in the followi
 [AWS-Explorer](../../../references/aws-explorer) is a reference service that is used to act as an example application in AWS environments.
 
 AWS-Explorer depends on and uses the following services:
-1. [S3 bucket](templates/s3.yaml)
-2. [SQS queue](templates/sqs.yaml)
-3. [DynamoDB Table](templates/dynamodb.yaml)
+1. [S3 bucket](templates/s3.yaml) (Runs as an actual cloud resource)
+2. [SQS queue](templates/sqs.yaml) (Runs as an actual cloud resource)
+3. [DynamoDB Table](templates/dynamodb.yaml) (Runs as an actual cloud resource)
 4. [PostgreSQL Database](templates/postgresql.yaml) (Runs as a container and not as a cloud managed service)
    1. The k8s manifest code for PostgreSQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/postgresql.yaml).
 5. [DB Migration Seeding Job](templates/seeding.yaml)
