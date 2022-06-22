@@ -41,4 +41,5 @@ helm template --set provision_resources=true --values values-velocity.yaml . > v
 
 ### TODO
 
-Add instructions on how to run the Blueprint applyer.
+* Add instructions on how to run the Blueprint applyer.
+* Add seeding examples
