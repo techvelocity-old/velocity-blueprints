@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo, seeding # Velocity dependencies declaration
+    velocity.tech.v1/id: explorer # Velocity service identifier
+    velocity.tech.v1/exposures-http-isPublic: "true" # Velocity public URI exposure of port name "http"
+    velocity.tech.v1/exposures-http-publicScheme: "https" # Velocity public URI exposure scheme of port name "http"
+  name: explorer
+  labels:
+    app: explorer
+spec:
+  selector:
+    matchLabels:
+      app: explorer
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: explorer
+    spec:
+      containers:
+        - name: explorer
+          image: {{ .Values.image }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AWS_REGION
+              value: {{ .Values.region }}
+            - name: BUCKET_NAME
+              value: {{ .Values.bucket_name | toJson }}
+            - name: DB_HOST
+              value: {{ .Values.db_host | toJson }}
+            - name: DB_PORT
+              value: {{ .Values.db_port | toJson }}
+            - name: DB_USER
+              value: {{ .Values.db_user | toJson }}
+            - name: DB_PASS
+              value: {{ .Values.db_pass | toJson }}
+            - name: QUEUE_NAME
+              value: {{ .Values.queue_name | toJson }}
+            - name: DYNAMODB_TABLE_NAME
+              value: {{ .Values.table_name | toJson }}
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ .Values.aws_access_key_id }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ .Values.aws_secret_access_key }}
+            - name: AWS_SESSION_TOKEN
+              value: {{ .Values.aws_session_token }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorer
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: explorer

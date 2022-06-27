@@ -1,0 +1,21 @@
+# This seeding DB migration job is using the open-source `migrate` tool to perform DB migrations.
+# In fact, it accesses this git repo (at references/db-migrations)  and runs the migrations there on the PostgreSQL database.
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "migration-job"
+  annotations:
+    velocity.tech.v1/id: seeding # Velocity service identifier
+    velocity.tech.v1/dependsOn: psql # Velocity dependencies declaration
+spec:
+  template:
+    metadata:
+      name: "migration-job-pod"
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: "db-migrations"
+          image: migrate/migrate:latest
+          command: ['/migrate']
+          args: ["-source", "github://techvelocity/velocity-blueprints/references/db-migrations#0116dcbc1e87cfb22086b64a662cd1be0a118ac1", "-database", 'postgres://{{ .Values.db_user }}:{{ .Values.db_pass}}@{{ .Values.db_host }}:{{ .Values.db_port }}/app_development?sslmode=disable', "up"]

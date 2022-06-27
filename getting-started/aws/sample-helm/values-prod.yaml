@@ -1,0 +1,15 @@
+bucket_name: 'env-prod-my-bucket-test'
+queue_name: 'my-queue'
+table_name: 'my-table'
+
+db_user: 'prod'
+db_pass: 'prod'
+db_host: '1.2.3.4'
+db_port: '1234'
+
+image: 'gcr.io/velocity-playground/aws-explorer'
+region: 'eu-central-1'
+
+aws_access_key_id: 'my-access-key-id'
+aws_secret_access_key: 'my-secret-access-key'
+aws_session_token: 'my-session-token'

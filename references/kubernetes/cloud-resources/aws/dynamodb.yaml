@@ -1,0 +1,37 @@
+# API Reference is at https://aws-controllers-k8s.github.io/community/reference/dynamodb/v1alpha1/table/
+
+apiVersion: dynamodb.services.k8s.aws/v1alpha1
+kind: Table
+metadata:
+  annotations:
+    velocity.tech.v1/id: dynamo
+  name: "my-table"
+spec:
+  tableName: {{ .Values.table_name | toJson }}
+  attributeDefinitions:
+    - attributeName: ForumName
+      attributeType: S
+    - attributeName: LastPostDateTime
+      attributeType: S
+    - attributeName: Subject
+      attributeType: S
+  keySchema:
+    - attributeName: ForumName
+      keyType: HASH
+    - attributeName: Subject
+      keyType: RANGE
+  localSecondaryIndexes:
+    - indexName: LastPostIndex
+      keySchema:
+        - attributeName: ForumName
+          keyType: HASH
+        - attributeName: LastPostDateTime
+          keyType: RANGE
+      projection:
+        projectionType: KEYS_ONLY
+  provisionedThroughput:
+    readCapacityUnits: 5
+    writeCapacityUnits: 5
+  streamSpecification:
+    streamEnabled: true
+    streamViewType: "NEW_AND_OLD_IMAGES"

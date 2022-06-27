@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: explorer
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: explorer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo, seeding # Velocity dependencies declaration
+    velocity.tech.v1/id: explorer # Velocity service identifier
+    velocity.tech.v1/exposures-http-isPublic: "true" # Velocity public URI exposure of port name "http"
+    velocity.tech.v1/exposures-http-publicScheme: "https" # Velocity public URI exposure scheme of port name "http"
+  name: explorer
+  labels:
+    app: explorer
+spec:
+  selector:
+    matchLabels:
+      app: explorer
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: explorer
+    spec:
+      containers:
+        - name: explorer
+          image: gcr.io/velocity-playground/aws-explorer
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AWS_REGION
+              value: eu-central-1
+            - name: BUCKET_NAME
+              value: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
+            - name: DB_HOST
+              value: "{velocity.v1:psql.exposures(port=tcp).host}"
+            - name: DB_PORT
+              value: "{velocity.v1:psql.exposures(port=tcp).port}"
+            - name: DB_USER
+              value: "{velocity.v1:psql.exposures(port=tcp).user}"
+            - name: DB_PASS
+              value: "{velocity.v1:psql.exposures(port=tcp).password}"
+            - name: QUEUE_NAME
+              value: "{velocity.v1.envName}-my-queue"
+            - name: DYNAMODB_TABLE_NAME
+              value: "{velocity.v1.envName}-my-table"
+            - name: AWS_ACCESS_KEY_ID
+              value: 'aws-access-key-id'
+            - name: AWS_SECRET_ACCESS_KEY
+              value: 'aws-secret-access-key'
+            - name: AWS_SESSION_TOKEN
+              value: 'aws-session-token'
+---
