@@ -33,7 +33,7 @@ func main() {
 		log.Fatalf("session.NewSession: %v", err)
 	}
 
-	tests3()
+	testS3()
 	testSQS()
 	testDynamodb()
 	testPSQL()

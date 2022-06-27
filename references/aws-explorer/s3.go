@@ -35,6 +35,6 @@ func gets3Objects() *s3.ListObjectsOutput {
 	return result
 }
 
-func tests3() {
+func testS3() {
 	log.Printf("S3 ListObjects: %v", gets3Objects())
 }
