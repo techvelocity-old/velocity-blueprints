@@ -41,6 +41,10 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: db-credentials
+                optional: false
           env:
             - name: AWS_REGION
               value: eu-central-1
@@ -50,10 +54,6 @@ spec:
               value: "{velocity.v1:psql.exposures(port=tcp).host}"
             - name: DB_PORT
               value: "{velocity.v1:psql.exposures(port=tcp).port}"
-            - name: DB_USER
-              value: "{velocity.v1:psql.exposures(port=tcp).user}"
-            - name: DB_PASS
-              value: "{velocity.v1:psql.exposures(port=tcp).password}"
             - name: QUEUE_NAME
               value: "{velocity.v1.envName}-my-queue"
             - name: DYNAMODB_TABLE_NAME

@@ -28,6 +28,10 @@ spec:
           image: {{ .Values.image }}
           ports:
             - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: db-credentials
+                optional: false
           env:
             - name: PUBSUB_TOPIC
               value: {{ .Values.pubsub_topic_name | toJson  }}
