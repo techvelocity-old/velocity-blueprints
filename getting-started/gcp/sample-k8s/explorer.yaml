@@ -28,6 +28,10 @@ spec:
           image: gcr.io/velocity-playground/gcp-explorer
           ports:
             - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: db-credentials
+                optional: false
           env:
             - name: PUBSUB_TOPIC
               value: "{velocity.v1.envName}-topic"
