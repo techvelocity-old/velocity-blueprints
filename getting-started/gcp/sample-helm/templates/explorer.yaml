@@ -20,9 +20,6 @@ spec:
         app: explorer
         octopusexport: OctopusExport
     spec:
-      serviceAccountName: ksa
-      nodeSelector:
-        iam.gke.io/gke-metadata-server-enabled: "true"
       containers:
         - name: explorer
           image: {{ .Values.image }}
