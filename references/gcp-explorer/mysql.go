@@ -6,7 +6,7 @@ import (
 )
 
 func testMySQL() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s/dbname", mustGetenv("DB_USER"), mustGetenv("DB_PASSWORD"), mustGetenv("DB_HOST")))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@%s/dbname", mustGetenv("DB_USER"), mustGetenv("DB_PASS"), mustGetenv("DB_HOST")))
 	if err != nil {
 		panic(err)
 	}
