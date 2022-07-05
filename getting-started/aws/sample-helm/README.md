@@ -28,21 +28,37 @@ The k8s manifest code is available under the helm [templates](templates) directo
 `values-velocity.yaml` is the file the contains the values that fit your velocity environments.
 
 
-### HOWTO Dry run
+### HOWTO - Dry run for Production
 
 To dry run the helm chart for prod environment, run the following command:
 ```shell
 helm template --values values-prod.yaml . > prod.yaml
 ```
-This mimics how you would install the helm chart in prod env.
 
-To dry run the helm chart for velocity environments, run the following command:
+The resulting `prod.yaml` file reflects the resulting artifacts of the helm charts that are to be applied on your production environment.
+
+### HOWTO - Dry run for Velocity Environment
+
+To dry run the helm chart for velocity environments, follow these instructions:
+* Modify `aws_access_key_id`, `aws_secret_access_key`, `aws_session_token` in `values-velocity.yaml` to reflect your AWS credentials for the AWS account you are working on.
+* run the following command:
+   ```shell
+   helm template --set provision_resources=true --values values-velocity.yaml . > velocity.yaml
+   ```
+The resulting `velocity.yaml` file reflects the resulting artifacts of the helm charts that are to be applied on your velocity environments.
+
+
+### HOWTO - Create a Velocity Environment
+To create a Velocity Environment, first you need to run the instructions on the previous section (Dry run for Velocity Environment).
+
+After doing so, you shall have a `velocity.yaml` result artifact.
+
+To create an environment, pass the `velocity.yaml` file to a `veloctl env create` command as such:
 ```shell
-helm template --set provision_resources=true --values values-velocity.yaml . > velocity.yaml
+veloctl env create -f velocity.yaml
 ```
 
-
-
-### TODO
-
-Add instructions on how to run the Blueprint applyer.
+NOTE: You can also choose to create the `velocity.yaml` file and running the `veloctl env create` command together by using pipes, as such
+```shell
+helm template --set provision_resources=true --values values-velocity.yaml . | veloctl env create -f -
+```
