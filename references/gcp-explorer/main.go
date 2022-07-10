@@ -11,6 +11,8 @@ func main() {
 	testMySQL()
 	testPubSub()
 
+	log.Println("All cloud resources tests passed!")
+
 	select {}
 }
 
