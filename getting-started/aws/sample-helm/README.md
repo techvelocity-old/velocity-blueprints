@@ -40,7 +40,6 @@ The resulting `prod.yaml` file reflects the resulting artifacts of the helm char
 ### HOWTO - Dry run for Velocity Environment
 
 To dry run the helm chart for velocity environments, follow these instructions:
-* Modify `aws_access_key_id`, `aws_secret_access_key`, `aws_session_token` in `values-velocity.yaml` to reflect your AWS credentials for the AWS account you are working on.
 * run the following command:
    ```shell
    helm template --set provision_resources=true --values values-velocity.yaml . > velocity.yaml
