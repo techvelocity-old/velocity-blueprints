@@ -58,10 +58,4 @@ spec:
               value: "{velocity.v1.envName}-my-queue"
             - name: DYNAMODB_TABLE_NAME
               value: "{velocity.v1.envName}-my-table"
-            - name: AWS_ACCESS_KEY_ID
-              value: 'aws-access-key-id'
-            - name: AWS_SECRET_ACCESS_KEY
-              value: 'aws-secret-access-key'
-            - name: AWS_SESSION_TOKEN
-              value: 'aws-session-token'
 ---
