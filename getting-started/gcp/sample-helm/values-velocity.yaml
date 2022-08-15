@@ -5,7 +5,7 @@ pubsub_sub_name: "{velocity.v1.envName}-sub"
 pubsub_topic_name: "{velocity.v1.envName}-topic"
 
 # bucket_name is prefixed with a random string and the environment name. This is because buckets are globally unique, so this allows us to have a bucket per environment without collisions.
-bucket_name: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-my-bucket"
+bucket_name: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
 
 project_id: "velocity-playground"
 image: "gcr.io/velocity-playground/gcp-explorer"

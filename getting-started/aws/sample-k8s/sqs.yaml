@@ -3,6 +3,6 @@ kind: Queue
 metadata:
   annotations:
     velocity.tech.v1/id: queue # Velocity service identifier
-  name: "{velocity.v1.generate:cloudResourcePrefix(seed=my-queue)}-{velocity.v1.envName}-my-queue"
+  name: "{velocity.v1.envName}-my-queue"
 spec:
-  queueName: "{velocity.v1.generate:cloudResourcePrefix(seed=my-queue)}-{velocity.v1.envName}-my-queue"
+  queueName: "{velocity.v1.envName}-my-queue"

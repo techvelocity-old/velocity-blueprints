@@ -5,7 +5,7 @@ metadata:
     cnrm.cloud.google.com/force-destroy: "true"
     cnrm.cloud.google.com/project-id: velocity-playground
     velocity.tech.v1/id: bucket # Velocity service identifier
-  name: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-my-bucket"
+  name: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
 spec:
   versioning:
     enabled: true
