@@ -3,9 +3,9 @@ kind: Table
 metadata:
   annotations:
     velocity.tech.v1/id: dynamo # Velocity service identifier
-  name: "{velocity.v1.envName}-my-table"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=my-table)}-{velocity.v1.envName}-my-table"
 spec:
-  tableName: "{velocity.v1.envName}-my-table"
+  tableName: "{velocity.v1.generate:cloudResourcePrefix(seed=my-table)}-{velocity.v1.envName}-my-table"
   attributeDefinitions:
     - attributeName: ForumName
       attributeType: S
