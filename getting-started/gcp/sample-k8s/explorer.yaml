@@ -37,7 +37,7 @@ spec:
             - name: GOOGLE_CLOUD_PROJECT
               value: velocity-playground
             - name: BUCKET_NAME
-              value: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)-{velocity.v1.envName}-my-bucket"
             - name: DB_HOST
               value: "{velocity.v1:mysql.exposures(port=mysql).host}"
 ---
