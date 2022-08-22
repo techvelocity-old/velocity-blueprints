@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
         - name: explorer
-          image: gcr.io/velocity-playground/aws-explorer
+          image: gcr.io/velocity-playground/aws-explorer:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -47,13 +47,13 @@ spec:
             - name: AWS_REGION
               value: eu-central-1
             - name: BUCKET_NAME
-              value: "{velocity.v1.generate:cloudResourcePrefix(seed=my-bucket)}-{velocity.v1.envName}-my-bucket"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-my-bucket"
             - name: DB_HOST
               value: "{velocity.v1:psql.exposures(port=tcp).host}"
             - name: DB_PORT
               value: "{velocity.v1:psql.exposures(port=tcp).port}"
             - name: QUEUE_NAME
-              value: "{velocity.v1.generate:cloudResourcePrefix(seed=my-queue)}-{velocity.v1.envName}-my-queue"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=queue)}-{velocity.v1.envName}-my-queue"
             - name: DYNAMODB_TABLE_NAME
-              value: "{velocity.v1.generate:cloudResourcePrefix(seed=my-table)}-{velocity.v1.envName}-my-table"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=table)}-{velocity.v1.envName}-my-table"
 ---

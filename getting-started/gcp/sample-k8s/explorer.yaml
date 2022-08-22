@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: explorer
-          image: gcr.io/velocity-playground/gcp-explorer
+          image: gcr.io/velocity-playground/gcp-explorer:latest
           ports:
             - containerPort: 80
           envFrom:
@@ -31,9 +31,9 @@ spec:
                 optional: false
           env:
             - name: PUBSUB_TOPIC
-              value: "{velocity.v1.envName}-topic"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=topic)}-{velocity.v1.envName}-topic"
             - name: PUBSUB_SUB
-              value: "{velocity.v1.envName}-sub"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=sub)}-{velocity.v1.envName}-sub"
             - name: GOOGLE_CLOUD_PROJECT
               value: velocity-playground
             - name: BUCKET_NAME

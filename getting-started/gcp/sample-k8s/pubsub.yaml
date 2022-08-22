@@ -4,10 +4,10 @@ metadata:
   annotations:
     velocity.tech.v1/id: pubsub-sub # Velocity service identifier
     cnrm.cloud.google.com/project-id: velocity-playground
-  name: "{velocity.v1.envName}-sub"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=sub)}-{velocity.v1.envName}-sub"
 spec:
   topicRef:
-    name: "{velocity.v1.envName}-topic"
+    name: "{velocity.v1.generate:cloudResourcePrefix(seed=topic)}-{velocity.v1.envName}-topic"
 ---
 # Source: rs-gcp/templates/pubsub.yaml
 apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
@@ -16,5 +16,5 @@ metadata:
   annotations:
     velocity.tech.v1/id: pubsub-topic # Velocity service identifier
     cnrm.cloud.google.com/project-id: velocity-playground
-  name: "{velocity.v1.envName}-topic"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=topic)}-{velocity.v1.envName}-topic"
 ---
