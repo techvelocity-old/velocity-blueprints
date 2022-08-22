@@ -7,7 +7,7 @@ db_pass: 'prod'
 db_host: '1.2.3.4'
 db_port: '1234'
 
-image: 'gcr.io/velocity-playground/aws-explorer'
+image: 'gcr.io/velocity-playground/aws-explorer:latest'
 region: 'eu-central-1'
 
 aws_access_key_id: 'my-access-key-id'
