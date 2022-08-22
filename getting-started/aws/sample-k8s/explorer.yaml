@@ -18,8 +18,6 @@ metadata:
   annotations:
     velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo, seeding # Velocity dependencies declaration
     velocity.tech.v1/id: explorer # Velocity service identifier
-    velocity.tech.v1/exposures-http-isPublic: "true" # Velocity public URI exposure of port name "http"
-    velocity.tech.v1/exposures-http-publicScheme: "https" # Velocity public URI exposure scheme of port name "http"
   name: explorer
   labels:
     app: explorer
@@ -49,13 +47,13 @@ spec:
             - name: AWS_REGION
               value: eu-central-1
             - name: BUCKET_NAME
-              value: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=my-bucket)}-{velocity.v1.envName}-my-bucket"
             - name: DB_HOST
               value: "{velocity.v1:psql.exposures(port=tcp).host}"
             - name: DB_PORT
               value: "{velocity.v1:psql.exposures(port=tcp).port}"
             - name: QUEUE_NAME
-              value: "{velocity.v1.envName}-my-queue"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=my-queue)}-{velocity.v1.envName}-my-queue"
             - name: DYNAMODB_TABLE_NAME
-              value: "{velocity.v1.envName}-my-table"
+              value: "{velocity.v1.generate:cloudResourcePrefix(seed=my-table)}-{velocity.v1.envName}-my-table"
 ---

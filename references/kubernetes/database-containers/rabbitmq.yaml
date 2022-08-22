@@ -8,7 +8,6 @@ metadata:
     velocity.tech.v1/exposures-tcp-user: path="spec.template.spec.containers.(name=rabbitmq).env.(name=RABBITMQ_DEFAULT_USER).value" # Velocity connectivity details
     velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=rabbitmq).env.(name=RABBITMQ_DEFAULT_PASS).value" # Velocity connectivity details
     velocity.tech.v1/exposures-tcp-scheme: amqp # Velocity connectivity details
-    velocity.tech.v1/exposures-tcp-management-isPublic: "true" # Velocity external connectivity
     velocity.tech.v1/exports-vhost: path="spec.template.spec.containers.(name=rabbitmq).env.(name=RABBITMQ_DEFAULT_VHOST).value" # Velocity exported variable
   name: rabbitmq
 spec:

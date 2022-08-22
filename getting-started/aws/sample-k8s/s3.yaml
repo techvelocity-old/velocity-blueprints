@@ -3,6 +3,6 @@ kind: Bucket
 metadata:
   annotations:
     velocity.tech.v1/id: bucket # Velocity service identifier
-  name: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=my-bucket)}-{velocity.v1.envName}-my-bucket"
 spec:
-  name: "{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=my-bucket)}-{velocity.v1.envName}-my-bucket"

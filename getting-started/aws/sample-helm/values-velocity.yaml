@@ -1,13 +1,14 @@
 # {velocity.v1.envName} will be translated to unique ID per environment
+# {velocity.v1.generate:cloudResourcePrefix(seed=<some string identifier>)} will be translated to the special prefix we have for security reasons. Read more in velocity docs.
 
 # bucket_name is prefixed with a random string and the environment name. This is because buckets are globally unique, so this allows us to have a bucket per environment without collisions.
-bucket_name: '{velocity.v1.generate:random([a-z]{1,64})}-{velocity.v1.envName}-my-bucket'
+bucket_name: '{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-my-bucket'
 
 # queue_name is prefixed with the environment name. This is because a queue name is unique per AWS account, so this allows us to have a queue per environment without collisions.
-queue_name: '{velocity.v1.envName}-my-queue'
+queue_name: '{velocity.v1.generate:cloudResourcePrefix(seed=queue)}-{velocity.v1.envName}-my-queue'
 
 # table_name is prefixed with the environment name. This is because a table name is unique per AWS account, so this allows us to have a queue per environment without collisions.
-table_name: '{velocity.v1.envName}-my-table'
+table_name: '{velocity.v1.generate:cloudResourcePrefix(seed=table)}-{velocity.v1.envName}-my-table'
 
 # db_X values will be dynamically fetched from the `psql` service
 db_user: '{velocity.v1:psql.exposures(port=tcp).user}'

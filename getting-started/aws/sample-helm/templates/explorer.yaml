@@ -4,8 +4,6 @@ metadata:
   annotations:
     velocity.tech.v1/dependsOn: bucket, queue, psql, dynamo, seeding # Velocity dependencies declaration
     velocity.tech.v1/id: explorer # Velocity service identifier
-    velocity.tech.v1/exposures-http-isPublic: "true" # Velocity public URI exposure of port name "http"
-    velocity.tech.v1/exposures-http-publicScheme: "https" # Velocity public URI exposure scheme of port name "http"
   name: explorer
   labels:
     app: explorer
