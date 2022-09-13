@@ -136,7 +136,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/dependsOn: seeding # the app will start only after the database is seeded
+    velocity.tech.v1/dependsOn: psql, seeding # the app will start only after the database is seeded
   name: the-app
 spec:
   replicas: 1
@@ -150,10 +150,17 @@ spec:
     spec:
       containers:
         - name: the-app
-          image: busybox
+          image: bitnami/postgresql:13.2.0
+          env:
+            - name: DB_URI
+              value: '{velocity.v1:psql.exposures(port=tcp).uri}'
+            - name: USER
+              value: '{velocity.v1:psql.exposures(port=tcp).user}'
+            - name: DB_NAME
+              value: '{velocity.v1:psql.exports.dbname}'
           command: ["/bin/sh", "-c"]
           args:
-            - while true; do echo "Using data from DB!"; sleep 10; done
+            - while true; do psql $DB_URI/$DB_NAME -c 'SELECT * FROM tasks'; sleep 10; done
           imagePullPolicy: IfNotPresent
           resources:
             limits:
