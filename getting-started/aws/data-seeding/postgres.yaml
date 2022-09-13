@@ -132,3 +132,33 @@ spec:
           emptyDir: { }
       restartPolicy: Never
 ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: seeding # the app will start only after the database is seeded
+  name: the-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: the-app
+  template:
+    metadata:
+      labels:
+        name: the-app
+    spec:
+      containers:
+        - name: the-app
+          image: busybox
+          command: ["/bin/sh", "-c"]
+          args:
+            - while true; do echo "Using data from DB!"; sleep 10; done
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "1"
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
