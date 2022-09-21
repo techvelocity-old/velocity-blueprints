@@ -82,3 +82,24 @@ spec:
           ports:
             - containerPort: 8080
 ---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend
+spec:
+  rules:
+    - host: "backend-{velocity.v1.domainSuffix}"
+      http:
+        paths:
+          - backend:
+              service:
+                name: backend
+                port:
+                  name: svc-http
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - "backend-{velocity.v1.domainSuffix}"
+      secretName: "{velocity.v1.tlsSecretName}"
+---
