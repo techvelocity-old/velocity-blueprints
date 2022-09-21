@@ -1,0 +1,69 @@
+---
+apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
+kind: PubSubTopic
+metadata:
+  annotations:
+    velocity.tech.v1/id: pubsub-topic # Velocity service identifier
+    velocity.tech.v1/exports-topic-name: path="metadata.name"
+    cnrm.cloud.google.com/project-id: "{velocity.v1.gcp.projectName}"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=topic)}-{velocity.v1.envName}-topic"
+---
+apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
+kind: PubSubSubscription
+metadata:
+  annotations:
+    velocity.tech.v1/id: pubsub-subscription # Velocity service identifier
+    velocity.tech.v1/dependsOn: pubsub-topic, pubsub-subscription
+    velocity.tech.v1/exports-sub-name: path="metadata.name"
+    cnrm.cloud.google.com/project-id: "{velocity.v1.gcp.projectName}"
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=sub)}-{velocity.v1.envName}-sub"
+spec:
+  topicRef:
+    name: "{velocity.v1:pubsub-topic.exports.topic-name}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: service-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: service-a # Velocity service identifier
+    velocity.tech.v1/dependsOn: pubsub-topic,pubsub-subscription
+  name: service-a
+  labels:
+    app: service-a
+spec:
+  selector:
+    matchLabels:
+      app: service-a
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-a
+    spec:
+      containers:
+        - name: service-a
+          image: yeasy/simple-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+          - name: PUBSUB_TOPIC
+            value: "{velocity.v1:pubsub-topic.exports.topic-name}"
+          - name: PUBSUB_SUB
+            value: "{velocity.v1:pubsub-subscription.exports.sub-name}"
+
+---
