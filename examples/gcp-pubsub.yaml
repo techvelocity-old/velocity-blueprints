@@ -5,7 +5,6 @@ metadata:
   annotations:
     velocity.tech.v1/id: pubsub-topic # Velocity service identifier
     velocity.tech.v1/exports-topic-name: path="metadata.name"
-    cnrm.cloud.google.com/project-id: "{velocity.v1.gcp.projectName}"
   name: "{velocity.v1.generate:cloudResourcePrefix(seed=topic)}-{velocity.v1.envName}-topic"
 ---
 apiVersion: pubsub.cnrm.cloud.google.com/v1beta1
@@ -15,7 +14,6 @@ metadata:
     velocity.tech.v1/id: pubsub-subscription # Velocity service identifier
     velocity.tech.v1/dependsOn: pubsub-topic, pubsub-subscription
     velocity.tech.v1/exports-sub-name: path="metadata.name"
-    cnrm.cloud.google.com/project-id: "{velocity.v1.gcp.projectName}"
   name: "{velocity.v1.generate:cloudResourcePrefix(seed=sub)}-{velocity.v1.envName}-sub"
 spec:
   topicRef:
