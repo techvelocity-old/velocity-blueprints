@@ -1,0 +1,220 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-10gb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-database
+spec:
+  ports:
+    - name: tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: postgres-database
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: psql # Velocity service identifier
+    velocity.tech.v1/exposures-tcp-user: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_USERNAME).value"
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_PASSWORD).value"
+    velocity.tech.v1/exposures-tcp-scheme: "postgres"
+    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_DATABASE).value" # Velocity exported variable
+  name: postgres-database
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: postgres-database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: postgres-database
+    spec:
+      containers:
+        - env:
+            - name: POSTGRESQL_DATABASE
+              value: app_development
+            - name: POSTGRESQL_PASSWORD
+              value: secretpass
+            - name: POSTGRESQL_USERNAME
+              value: username
+          image: bitnami/postgresql:13.2.0
+          imagePullPolicy: IfNotPresent
+          name: postgres-database
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "1"
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: persistent-postgres-database-0
+      dnsPolicy: ClusterFirst
+      hostname: postgres-database
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: persistent-postgres-database-0
+          persistentVolumeClaim:
+            claimName: pvc-10gb
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "job1"
+  annotations:
+    velocity.tech.v1/id: data
+    velocity.tech.v1/dependsOn: psql, migrate
+  labels:
+    app: data
+spec:
+  template:
+    metadata:
+      name: "job1"
+      labels:
+        app: seeding
+    spec:
+      containers:
+        - name: data
+          image: bitnami/postgresql:13.2.0
+          env:
+            - name: DB_URI
+              value: '{velocity.v1:psql.exposures(port=tcp).uri}'
+            - name: DB_NAME
+              value: '{velocity.v1:psql.exports.dbname}'
+          command: ["/bin/bash", "-c"]
+          args:
+            - psql $DB_URI/$DB_NAME -P pager=off -f /mnt/seeds/data-file.sql
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      initContainers:
+        - name: download-sql
+          image: amazon/aws-cli:2.0.6
+          command: [ "/bin/sh", "-c" ]
+          env:
+            - name: SNAPSHOT_FILE
+              value: "{velocity.v1.snapshot}"
+          args:
+            - aws s3 cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      volumes:
+        - name: seed-files
+          emptyDir: { }
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "job2"
+  annotations:
+    velocity.tech.v1/id: migrate
+    velocity.tech.v1/dependsOn: psql
+  labels:
+    app: migrate
+spec:
+  template:
+    metadata:
+      name: "job2"
+      labels:
+        app: migrate
+    spec:
+      containers:
+        - name: migrate
+          image: bitnami/postgresql:13.2.0
+          env:
+            - name: DB_URI
+              value: '{velocity.v1:psql.exposures(port=tcp).uri}'
+            - name: DB_NAME
+              value: '{velocity.v1:psql.exports.dbname}'
+          command: ["/bin/bash", "-c"]
+          args:
+            - psql $DB_URI/$DB_NAME -P pager=off -f /mnt/seeds/data-file.sql
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      initContainers:
+        - name: download-sql
+          image: amazon/aws-cli:2.0.6
+          command: [ "/bin/sh", "-c" ]
+          env:
+            - name: SNAPSHOT_FILE
+              value: "{velocity.v1.snapshot}"
+          args:
+            - aws s3 cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      volumes:
+        - name: seed-files
+          emptyDir: { }
+      restartPolicy: Never
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: psql, data # the app will start only after the database is seeded
+  name: the-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: the-app
+  template:
+    metadata:
+      labels:
+        name: the-app
+    spec:
+      containers:
+        - name: the-app
+          image: bitnami/postgresql:13.2.0
+          env:
+            - name: DB_URI
+              value: '{velocity.v1:psql.exposures(port=tcp).uri}'
+            - name: USER
+              value: '{velocity.v1:psql.exposures(port=tcp).user}'
+            - name: DB_NAME
+              value: '{velocity.v1:psql.exports.dbname}'
+          command: ["/bin/sh", "-c"]
+          args:
+            - while true; do psql $DB_URI/$DB_NAME -c 'SELECT * FROM tasks'; sleep 10; done
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "1"
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
