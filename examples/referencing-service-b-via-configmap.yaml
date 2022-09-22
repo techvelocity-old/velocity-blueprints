@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: service-a
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: service-a # Velocity service identifier
+  name: service-a
+  labels:
+    app: service-a
+spec:
+  selector:
+    matchLabels:
+      app: service-a
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-a
+    spec:
+      containers:
+        - name: service-a
+          image: yeasy/simple-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+           - name: service-b_URL
+             valueFrom:
+               configMapKeyRef:
+                 name: service-a
+                 key: service-b_URL
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-a
+  annotations:
+    velocity.tech.v1/dependsOn: service-b
+data:
+  service-b_URL: "{velocity.v1:service-b.exposures(port=http).uri}"
+  service-b_HOST: "{velocity.v1:service-b.exposures(port=http).host}"
+  service-b_PORT: "{velocity.v1:service-b.exposures(port=http).port}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+  selector:
+    app: service-b
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: service-b # Velocity service identifier
+    velocity.tech.v1/exposures-http-scheme: http
+
+  name: service-b
+  labels:
+    app: service-b
+spec:
+  selector:
+    matchLabels:
+      app: service-b
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: service-b
+    spec:
+      containers:
+        - name: service-b
+          image: yeasy/simple-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
