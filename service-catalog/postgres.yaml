@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: psql-var-service-id
+    velocity.tech.v1/exposures-tcp-user: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_USERNAME).value"
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_PASSWORD).value"
+    velocity.tech.v1/exposures-tcp-scheme: "postgres"
+    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_DATABASE).value"
+  name: postgres-database-var-service-id
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: postgres-database-var-service-id
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: postgres-database-var-service-id
+    spec:
+      containers:
+        - env:
+            - name: POSTGRESQL_DATABASE
+              value: app_development
+            - name: POSTGRESQL_PASSWORD
+              value: secretpass
+            - name: POSTGRESQL_USERNAME
+              value: username
+          image: bitnami/postgresql:13.2.0
+          imagePullPolicy: IfNotPresent
+          name: postgres-database
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          resources:
+            limits:
+              cpu: "1"
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          volumeMounts:
+            - mountPath: /bitnami/postgresql
+              name: persistent-postgres-database-0
+      dnsPolicy: ClusterFirst
+      hostname: postgres-database
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: persistent-postgres-database-0
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim-var-service-id
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-database-var-service-id
+spec:
+  ports:
+    - name: tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    name: postgres-database-var-service-id
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pv-claim-var-service-id
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
