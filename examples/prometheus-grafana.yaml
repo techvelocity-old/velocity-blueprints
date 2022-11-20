@@ -9,8 +9,8 @@ metadata:
     app.kubernetes.io/instance: release-name
     app.kubernetes.io/version: "9.2.4"
     app.kubernetes.io/managed-by: Helm
-    # annotations:
-    #   velocity.tech.v1/associateTo: "release-name-grafana"
+  annotations:
+    velocity.tech.v1/associateTo: "release-name-grafana"
   name: release-name-grafana
   namespace: default
 ---
@@ -29,7 +29,7 @@ metadata:
 type: Opaque
 data:
   admin-user: "YWRtaW4="
-  admin-password: "aU9Lb05EWG1iZHJiNzlHcm5iVFAxMlpUc0swRzc2UWNPV3NGalJVWg=="
+  admin-password: "YWRtaW4="
   ldap-toml: ""
 ---
 # Source: grafana/templates/configmap.yaml
@@ -57,7 +57,16 @@ data:
     logs = /var/log/grafana
     plugins = /var/lib/grafana/plugins
     provisioning = /etc/grafana/provisioning
-   
+    [server]
+    domain = ''
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+    - access: proxy
+      isDefault: true
+      name: Prometheus
+      type: prometheus
+      url: http://release-name-prometheus-server
 ---
 # Source: grafana/templates/clusterrole.yaml
 kind: ClusterRole
@@ -89,7 +98,7 @@ subjects:
     namespace: default
 roleRef:
   kind: ClusterRole
-  name: release-name-grafana-clusterrole
+  name: release-name-grafana-clusterrole-{velocity.v1.envName}
   apiGroup: rbac.authorization.k8s.io
 ---
 # Source: grafana/templates/role.yaml
@@ -181,10 +190,10 @@ spec:
         app.kubernetes.io/name: grafana
         app.kubernetes.io/instance: release-name
       annotations:
-        checksum/config: 68d979dad7acffb0b143cfc61bda36cc387fd361bc2f89d1b683d36cabbe54f2
+        checksum/config: 2d81286ff02576031ebbe02b58907f4bc7d517806480ad0b21dfe2975806dbe6
         checksum/dashboards-json-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
         checksum/sc-dashboard-provider-config: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/secret: 1531c9199496f602d95d7acd36416abe53ae588d0080cf93e252f89c02b1e710
+        checksum/secret: 8833a314b9880ae3d576cd8dc29acb30e39a89940aaef676304e03e03986a4d5
     spec:
       
       serviceAccountName: release-name-grafana
@@ -204,6 +213,9 @@ spec:
               subPath: grafana.ini
             - name: storage
               mountPath: "/var/lib/grafana"
+            - name: config
+              mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
+              subPath: "datasources.yaml"
           ports:
             - name: grafana
               containerPort: 3000
@@ -258,10 +270,10 @@ metadata:
   name: release-name-grafana-test
   namespace: default
   annotations:
-    # "helm.sh/hook": test-success
-    # "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
-    velocity.tech.v1/associateTo: "release-name-grafana-test"
+    "helm.sh/hook": test-success
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
 
+    velocity.tech.v1/associateTo: "release-name-grafana-test"
 ---
 # Source: grafana/templates/tests/test-configmap.yaml
 apiVersion: v1
@@ -347,7 +359,6 @@ metadata:
     "helm.sh/hook": test-success
     "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
     velocity.tech.v1/dependsOn: release-name-grafana
-
   namespace: default
 spec:
   serviceAccountName: release-name-grafana-test
@@ -380,16 +391,6 @@ spec:
             backend:
               service:
                 name: release-name-grafana
-                port:
-                  number: 80
-    - host: web-api-{velocity.v1.domainSuffix}
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: web-api
                 port:
                   number: 80
 ---
