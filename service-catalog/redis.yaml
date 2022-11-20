@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: redis-var-service-id
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=redis).env.(name=REDIS_PASSWORD).value"
+    velocity.tech.v1/exposures-tcp-scheme: "redis"
+  name: redis-var-service-id
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      name: redis-var-service-id
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: redis-var-service-id
+    spec:
+      containers:
+        - env:
+            - name: REDIS_PASSWORD
+              value: "password123"
+          image: bitnami/redis:6.0
+          imagePullPolicy: IfNotPresent
+          name: redis
+          ports:
+            - containerPort: 6379
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 250m
+              memory: 200Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-var-service-id
+spec:
+  ports:
+    - name: tcp
+      port: 6379
+      protocol: TCP
+      targetPort: 6379
+  selector:
+    name: redis-var-service-id
+  type: ClusterIP
