@@ -10,3 +10,4 @@ services:
     path: https://raw.githubusercontent.com/techvelocity/velocity-blueprints/main/references/kubernetes/database-containers/generic-service.yaml
   redis:
     path: https://raw.githubusercontent.com/techvelocity/velocity-blueprints/main/references/kubernetes/database-containers/redis.yaml
+    

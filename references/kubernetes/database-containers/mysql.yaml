@@ -6,7 +6,7 @@ metadata:
     velocity.tech.v1/exposures-mysql-user: path="spec.template.spec.containers.(name=mysql-database).env.(name=MYSQL_USER).value" # Velocity connectivity details
     velocity.tech.v1/exposures-mysql-password: path="spec.template.spec.containers.(name=mysql-database).env.(name=MYSQL_PASSWORD).value" # Velocity connectivity details
     velocity.tech.v1/exposures-mysql-scheme: mysql2 # Velocity connectivity details
-    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=mysql-database).env.(name=MYSQL_DATABASE).value"  # Velocity exported variable
+    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=mysql-database).env.(name=MYSQL_DATABASE).value" # Velocity exported variable
   name: mysql-database-var-service-id
 spec:
   replicas: 1
