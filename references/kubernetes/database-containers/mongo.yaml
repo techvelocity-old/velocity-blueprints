@@ -1,12 +1,14 @@
+---
+# Source: mongo manual
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/id: mongo-var-service-id
-    velocity.tech.v1/exposures-tcp-user: root
-    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=mongodb).env.(name=MONGODB_ROOT_PASSWORD).value"
-    velocity.tech.v1/exposures-tcp-scheme: "mongodb"
-  name: mongodb-var-service-id
+    velocity.tech.v1/id: mongo-var-service-id # Velocity service identifier
+    velocity.tech.v1/exposures-tcp-user: root # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=mongodb).env.(name=MONGODB_ROOT_PASSWORD).value" # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-scheme: "mongodb" # Velocity connectivity details
+  name: mongo-var-service-id
 spec:
   replicas: 1
   selector:
@@ -22,7 +24,7 @@ spec:
       containers:
         - env:
             - name: MONGODB_ROOT_PASSWORD
-              value: "password1234"
+              value: "{velocity.v1.generate:random}"
           image: bitnami/mongodb:4.4
           imagePullPolicy: IfNotPresent
           name: mongodb

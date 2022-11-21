@@ -2,11 +2,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/id: psql-var-service-id
-    velocity.tech.v1/exposures-tcp-user: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_USERNAME).value"
-    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_PASSWORD).value"
-    velocity.tech.v1/exposures-tcp-scheme: "postgres"
-    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_DATABASE).value"
+    velocity.tech.v1/id: psql-var-service-id # Velocity service identifier
+    velocity.tech.v1/exposures-tcp-user: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_USERNAME).value" # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-password: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_PASSWORD).value" # Velocity connectivity details
+    velocity.tech.v1/exposures-tcp-scheme: "postgres" # Velocity connectivity details
+    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=postgres-database).env.(name=POSTGRESQL_DATABASE).value" # Velocity exported variable
   name: postgres-database-var-service-id
 spec:
   replicas: 1
@@ -25,7 +25,7 @@ spec:
             - name: POSTGRESQL_DATABASE
               value: app_development
             - name: POSTGRESQL_PASSWORD
-              value: secretpass
+              value: "{velocity.v1.generate:random}"
             - name: POSTGRESQL_USERNAME
               value: username
           image: bitnami/postgresql:13.2.0
