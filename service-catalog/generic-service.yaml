@@ -6,7 +6,6 @@ metadata:
   name: generic-service-var-service-id
 spec:
   replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       name: generic-service-var-service-id
@@ -18,28 +17,10 @@ spec:
         name: generic-service-var-service-id
     spec:
       containers:
-        - image: busybox:1.28
+        - image: busybox:latest
           command:
             - sleep
-            - "3600"
-          ports:
-            - name: http
-              containerPort: 3000
-              protocol: TCP
+            - infinity
           imagePullPolicy: IfNotPresent
           name: generic-service
       restartPolicy: Always
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: generic-service-var-service-id
-spec:
-  ports:
-    - name: tcp
-      port: 3005
-      protocol: TCP
-      targetPort: 3000
-  selector:
-    name: generic-service-var-service-id
-  type: ClusterIP

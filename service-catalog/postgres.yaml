@@ -10,7 +10,6 @@ metadata:
   name: postgres-database-var-service-id
 spec:
   replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       name: postgres-database-var-service-id

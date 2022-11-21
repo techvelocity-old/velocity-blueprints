@@ -8,7 +8,6 @@ metadata:
   name: redis-var-service-id
 spec:
   replicas: 1
-  revisionHistoryLimit: 10
   selector:
     matchLabels:
       name: redis-var-service-id
