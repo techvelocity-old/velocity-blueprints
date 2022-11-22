@@ -9,7 +9,7 @@ Folder structure:
 
 Service Catalog:
 
-* [references/kubernetes/database-containers/catalog.yaml] (catalog.yaml) - contains a list of the services, that the user see in Service Catalog.
+* [references/kubernetes/database-containers/catalog.yaml] (catalog.yaml) - contains a list of the services, that the Service Catalog contains.
 * [references/kubernetes/database-containers/] (database-containers) for the service deployment yamls files.
 
 For adding new services to Service Catalog you need:
