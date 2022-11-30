@@ -113,23 +113,30 @@ spec:
           volumeMounts:
             - name: seed-files
               mountPath: /mnt/seeds/
-              readOnly: false
+              readOnly: true
       initContainers:
         - name: download-sql
-          image: amazon/aws-cli:2.0.6
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:350.0.0-slim
           command: [ "/bin/sh", "-c" ]
           env:
             - name: SNAPSHOT_FILE
               value: "{velocity.v1.snapshot}"
           args:
-            - aws s3 cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
+            - gcloud auth activate-service-account --key-file=/mnt/secrets/GOOGLE_APPLICATION_CREDENTIALS;
+              gsutil cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
           volumeMounts:
             - name: seed-files
               mountPath: /mnt/seeds/
               readOnly: false
+            - name: google-creds
+              mountPath: /mnt/secrets/
+              readOnly: true
       volumes:
         - name: seed-files
           emptyDir: { }
+        - name: google-creds
+          secret:
+            secretName: gcp-cred-developer
       restartPolicy: Never
 ---
 apiVersion: apps/v1

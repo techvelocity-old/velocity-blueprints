@@ -88,10 +88,10 @@ kind: Job
 metadata:
   name: "job1"
   annotations:
-    velocity.tech.v1/id: data-seeding-job # Velocity service identifier
-    velocity.tech.v1/dependsOn: psql # Velocity dependencies declaration
+    velocity.tech.v1/id: data
+    velocity.tech.v1/dependsOn: psql, migrate
   labels:
-    app: seeding
+    app: data
 spec:
   template:
     metadata:
@@ -100,7 +100,7 @@ spec:
         app: seeding
     spec:
       containers:
-        - name: seeding
+        - name: data
           image: bitnami/postgresql:13.2.0
           env:
             - name: DB_URI
@@ -116,27 +116,90 @@ spec:
               readOnly: false
       initContainers:
         - name: download-sql
-          image: amazon/aws-cli:2.0.6
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:350.0.0-slim
           command: [ "/bin/sh", "-c" ]
           env:
             - name: SNAPSHOT_FILE
               value: "{velocity.v1.snapshot}"
           args:
-            - aws s3 cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
+            - gcloud auth activate-service-account --key-file=/mnt/secrets/GOOGLE_APPLICATION_CREDENTIALS;
+              gsutil cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
           volumeMounts:
             - name: seed-files
               mountPath: /mnt/seeds/
               readOnly: false
+            - name: google-creds
+              mountPath: /mnt/secrets/
+              readOnly: true
       volumes:
         - name: seed-files
           emptyDir: { }
+        - name: google-creds
+          secret:
+            secretName: gcp-cred-developer
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "job2"
+  annotations:
+    velocity.tech.v1/id: migrate
+    velocity.tech.v1/dependsOn: psql
+  labels:
+    app: migrate
+spec:
+  template:
+    metadata:
+      name: "job2"
+      labels:
+        app: migrate
+    spec:
+      containers:
+        - name: migrate
+          image: bitnami/postgresql:13.2.0
+          env:
+            - name: DB_URI
+              value: '{velocity.v1:psql.exposures(port=tcp).uri}'
+            - name: DB_NAME
+              value: '{velocity.v1:psql.exports.dbname}'
+          command: ["/bin/bash", "-c"]
+          args:
+            - psql $DB_URI/$DB_NAME -P pager=off -f /mnt/seeds/data-file.sql
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      initContainers:
+        - name: download-sql
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:350.0.0-slim
+          command: [ "/bin/sh", "-c" ]
+          env:
+            - name: SNAPSHOT_FILE
+              value: "{velocity.v1.snapshot}"
+          args:
+            - gcloud auth activate-service-account --key-file=/mnt/secrets/GOOGLE_APPLICATION_CREDENTIALS;
+              gsutil cp $SNAPSHOT_FILE /mnt/seeds/data-file.sql
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+            - name: google-creds
+              mountPath: /mnt/secrets/
+              readOnly: true
+      volumes:
+        - name: seed-files
+          emptyDir: { }
+        - name: google-creds
+          secret:
+            secretName: gcp-cred-developer
       restartPolicy: Never
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    velocity.tech.v1/dependsOn: psql, data-seeding-job # the app will start only after the database is seeded
+    velocity.tech.v1/dependsOn: psql, data # the app will start only after the database is seeded
   name: the-app
 spec:
   replicas: 1
