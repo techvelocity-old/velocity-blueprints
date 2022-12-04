@@ -172,7 +172,7 @@ spec:
               value: '{velocity.v1:mysql.exports.dbname}'
           command: ["/bin/sh", "-c"]
           args:
-            - echo "USE $DB_NAME; SELECT * FROM users;" | mysql --protocol=TCP --host=mysql-database-example --port=3306 -u$MYSQL_USER -p$MYSQL_PASSWORD
+            - while true; do echo "USE $DB_NAME; SELECT * FROM users;" | mysql --protocol=TCP --host=mysql-database-example --port=3306 -u$MYSQL_USER -p$MYSQL_PASSWORD; sleep 10; done;
           imagePullPolicy: IfNotPresent
           resources:
             limits:
