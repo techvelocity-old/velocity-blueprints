@@ -29,7 +29,7 @@ spec:
               value: admin
             - name: MYSQL_USER
               value: user123
-          image: bitnami/mysql:5.7
+          image: mysql:latest
           imagePullPolicy: IfNotPresent
           name: mysql-database-example
           ports:
@@ -37,8 +37,7 @@ spec:
               protocol: TCP
           readinessProbe:
             exec:
-              command:
-                - /opt/bitnami/scripts/mysql/healthcheck.sh
+              command: ["mysqladmin", "ping"]
             failureThreshold: 6
             periodSeconds: 15
             successThreshold: 1
@@ -111,7 +110,7 @@ spec:
     spec:
       containers:
         - name: seeding
-          image: bitnami/mysql:5.7
+          image: mysql:latest
           env:
             - name: MYSQL_PASSWORD
               value: '{velocity.v1:mysql.exports.password}'
@@ -162,7 +161,7 @@ spec:
     spec:
       containers:
         - name: the-app
-          image: bitnami/mysql:5.7
+          image: mysql:latest
           env:
             - name: MYSQL_USER
               value: '{velocity.v1:mysql.exports.user}'
