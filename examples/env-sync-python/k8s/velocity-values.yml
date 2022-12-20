@@ -1,0 +1,1 @@
+ingress_host: "api-{velocity.v1.domainSuffix}"
