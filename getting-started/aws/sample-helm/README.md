@@ -13,7 +13,7 @@ The k8s manifest code is available under the helm [templates](templates) directo
    2. [SQS queue](templates/sqs.yaml) (Runs as an actual cloud resource)
    3. [DynamoDB Table](templates/dynamodb.yaml) (Runs as an actual cloud resource)
    4. [PostgreSQL Database](templates/postgresql.yaml) (Runs as a container and not as a cloud managed service)
-      1. The k8s manifest code for PostgreSQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/postgresql.yaml).
+      1. The k8s manifest code for PostgreSQL was taken from the [reference snippet](../../../references/kubernetes/common-containers/postgresql.yaml).
    5. [DB Migration Seeding Job](templates/seeding.yaml)
       1. Because our app expects a certain DB schema that it can work with, we need to apply DB schema migration scripts.
       2. This k8s seeding Job runs DB migration scripts against the PostgreSQL DB.

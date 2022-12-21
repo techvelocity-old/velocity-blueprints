@@ -13,7 +13,7 @@ The k8s manifest code is available under the helm [templates](templates) directo
    2. [Pub/Sub Topic](templates/pubsub.yaml) (Runs as an actual cloud resource)
    3. [Pub/Sub Subscription](templates/pubsub.yaml) (Runs as an actual cloud resource - Attached to the Topic)
    4. [MySQL Database](templates/mysql.yaml) (Runs as a container and not as a cloud managed service)
-       1. The k8s manifest code for MySQL was taken from the [reference snippet](../../../references/kubernetes/database-containers/mysql.yaml).
+       1. The k8s manifest code for MySQL was taken from the [reference snippet](../../../references/kubernetes/common-containers/mysql.yaml).
 
 
 ### Helm

@@ -2,7 +2,7 @@
 
 [cloud-resources](cloud-resources) contains example snippets for when you want to use real cloud resources in your Velocity environments.
 
-[database-containers](database-containers) contains example snippets for when you want to use a database as a container in your Velocity environments.
+[common-containers](common-containers) contains example snippets for when you want to use a database/other common services as a container in your Velocity environments.
 
 ### When should you use cloud resources?
 If you can't find a "fake" replacement, and you don't want to invest on mocking/faking it - use the real thing. That will provide you with the best "production-like" experience.

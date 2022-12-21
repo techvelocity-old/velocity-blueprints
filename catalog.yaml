@@ -1,13 +1,13 @@
 version: 1
 services:
   mongodb:
-    path: ./references/kubernetes/database-containers/mongodb.yaml
+    path: ./references/kubernetes/common-containers/mongodb.yaml
   mysql:
-    path: ./references/kubernetes/database-containers/mysql.yaml
+    path: ./references/kubernetes/common-containers/mysql.yaml
   postgres:
-    path: ./references/kubernetes/database-containers/postgresql.yaml
+    path: ./references/kubernetes/common-containers/postgresql.yaml
   generic-service:
-    path: ./references/kubernetes/database-containers/generic-service.yaml
+    path: ./references/kubernetes/common-containers/generic-service.yaml
   redis:
-    path: ./references/kubernetes/database-containers/redis.yaml
+    path: ./references/kubernetes/common-containers/redis.yaml
     
