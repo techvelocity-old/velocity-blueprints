@@ -24,3 +24,32 @@ spec:
           imagePullPolicy: IfNotPresent
           name: generic-service
       restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: generic-service-var-service-id
+spec:
+  selector:
+    name: generic-service-var-service-id
+  ports:
+    - port: 80
+      name: http
+      targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: generic-service-var-service-id
+spec:
+  rules:
+    - host: generic-service-var-service-id-{velocity.v1.domainSuffix}
+      http:
+        paths:
+          - backend:
+              service:
+                name: generic-service-var-service-id
+                port:
+                  name: http
+            pathType: 'ImplementationSpecific'
+            path: '/'
