@@ -4,7 +4,7 @@ apiVersion: s3.services.k8s.aws/v1alpha1
 kind: Bucket
 metadata:
   annotations:
-    velocity.tech.v1/exports-name: path="metadata.name"
+    velocity.tech.v1/exports-name: path="spec.name"
     velocity.tech.v1/id: bucket
   name: "{velocity.v1.generate:cloudResourcePrefix}-my-bucket-var-service-id"
 spec:
