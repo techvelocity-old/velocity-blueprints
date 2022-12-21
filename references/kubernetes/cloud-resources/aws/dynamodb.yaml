@@ -4,10 +4,11 @@ apiVersion: dynamodb.services.k8s.aws/v1alpha1
 kind: Table
 metadata:
   annotations:
+    velocity.tech.v1/exports-name: path="metadata.name"
     velocity.tech.v1/id: dynamo
-  name: "my-table"
+  name: "{velocity.v1.generate:cloudResourcePrefix}-my-table"
 spec:
-  tableName: {{ .Values.table_name | toJson }}
+  tableName: "{velocity.v1.generate:cloudResourcePrefix}-my-table"
   attributeDefinitions:
     - attributeName: ForumName
       attributeType: S
