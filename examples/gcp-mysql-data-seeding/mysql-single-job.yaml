@@ -1,0 +1,193 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: mysql # Velocity service identifier
+    velocity.tech.v1/exports-user: path="spec.template.spec.containers.(name=mysql-database-example).env.(name=MYSQL_USER).value" # Velocity connectivity details
+    velocity.tech.v1/exports-password: path="spec.template.spec.containers.(name=mysql-database-example).env.(name=MYSQL_PASSWORD).value" # Velocity connectivity details
+    velocity.tech.v1/exports-dbname: path="spec.template.spec.containers.(name=mysql-database-example).env.(name=MYSQL_DATABASE).value" # Velocity exported variable
+  name: mysql-database-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: mysql-database-example
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        name: mysql-database-example
+    spec:
+      containers:
+        - env:
+            - name: MYSQL_DATABASE
+              value: example_db
+            - name: MYSQL_PASSWORD
+              value: "{velocity.v1.generate:random}"
+            - name: MYSQL_ROOT_PASSWORD
+              value: admin
+            - name: MYSQL_USER
+              value: user123
+          image: mysql:latest
+          imagePullPolicy: IfNotPresent
+          name: mysql-database-example
+          ports:
+            - containerPort: 3306
+              protocol: TCP
+          readinessProbe:
+            exec:
+              command: ["mysqladmin", "ping"]
+            failureThreshold: 6
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: "1"
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /bitnami/mysql
+              name: persistent-mysql-database-0
+      dnsPolicy: ClusterFirst
+      hostname: mysql-database-example
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: persistent-mysql-database-0
+          persistentVolumeClaim:
+            claimName: pvc-10gb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-database-example
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+      name: tcp
+  selector:
+    name: mysql-database-example
+  type: ClusterIP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-10gb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "job1"
+  annotations:
+    velocity.tech.v1/id: mysql-seeding-example # Velocity service identifier
+    velocity.tech.v1/dependsOn: mysql # Velocity dependencies declaration
+  labels:
+    app: seeding
+spec:
+  template:
+    metadata:
+      name: "job1"
+      labels:
+        app: seeding
+    spec:
+      containers:
+        - name: seeding
+          image: mysql:latest
+          env:
+            - name: MYSQL_PASSWORD
+              value: '{velocity.v1:mysql.exports.password}'
+            - name: MYSQL_USER
+              value: '{velocity.v1:mysql.exports.user}'
+            - name: DB_NAME
+              value: '{velocity.v1:mysql.exports.dbname}'
+          command: ["/bin/bash", "-c"]
+          args:
+            - gunzip < /mnt/seeds/example_db.sql.gz | mysql --protocol=TCP --host=mysql-database-example --port=3306 -u$MYSQL_USER -p$MYSQL_PASSWORD $DB_NAME
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+       initContainers:
+        - name: download-sql
+          image: gcr.io/google.com/cloudsdktool/cloud-sdk:350.0.0-slim
+          command: [ "/bin/sh", "-c" ]
+          env:
+            - name: SNAPSHOT_PATH
+              value: "{velocity.v1.snapshot}"
+            - name: MIGRATION_FILE
+              value: /mnt/seeds/migrate.sql
+            - name: KEY_FILE
+              value: /mnt/secrets/GOOGLE_APPLICATION_CREDENTIALS
+          args:
+            - gcloud auth activate-service-account --key-file=$KEY_FILE;
+              gsutil cp $SNAPSHOT_PATH $MIGRATION_FILE;
+          volumeMounts:
+            - name: google-cred
+              mountPath: /mnt/secrets/
+              readOnly: true
+            - name: migration-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      volumes:
+        - name: google-cred
+          secret:
+            secretName: gcp-cred-developer
+        - name: migration-files
+          emptyDir: { }
+      restartPolicy: Never
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/dependsOn: mysql, mysql-seeding-example # the app will start only after the database is seeded
+  name: the-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: the-app
+  template:
+    metadata:
+      labels:
+        name: the-app
+    spec:
+      containers:
+        - name: the-app
+          image: mysql:latest
+          env:
+            - name: MYSQL_USER
+              value: '{velocity.v1:mysql.exports.user}'
+            - name: MYSQL_PASSWORD
+              value: '{velocity.v1:mysql.exports.password}'
+            - name: DB_NAME
+              value: '{velocity.v1:mysql.exports.dbname}'
+          command: ["/bin/sh", "-c"]
+          args:
+            - while true; do echo "USE $DB_NAME; SELECT * FROM users;" | mysql --protocol=TCP --host=mysql-database-example --port=3306 -u$MYSQL_USER -p$MYSQL_PASSWORD; sleep 10; done;
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "1"
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
