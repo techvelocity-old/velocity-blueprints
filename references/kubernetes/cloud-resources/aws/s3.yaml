@@ -6,6 +6,6 @@ metadata:
   annotations:
     velocity.tech.v1/exports-name: path="metadata.name"
     velocity.tech.v1/id: bucket
-  name: "{velocity.v1.generate:cloudResourcePrefix}-my-bucket"
+  name: "{velocity.v1.generate:cloudResourcePrefix}-my-bucket-var-service-id"
 spec:
   name: "{velocity.v1.generate:cloudResourcePrefix}-my-bucket"

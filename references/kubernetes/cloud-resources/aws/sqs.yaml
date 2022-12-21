@@ -7,6 +7,6 @@ metadata:
   annotations:
     velocity.tech.v1/exports-name: path="metadata.name"
     velocity.tech.v1/id: queue
-  name: "{velocity.v1.generate:cloudResourcePrefix}-my-queue.fifo"
+  name: "{velocity.v1.generate:cloudResourcePrefix}-my-queue.fifo-var-service-id"
 spec:
   queueName: "{velocity.v1.generate:cloudResourcePrefix}-my-queue.fifo"
