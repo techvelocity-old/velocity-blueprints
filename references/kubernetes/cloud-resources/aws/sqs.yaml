@@ -9,4 +9,5 @@ metadata:
     velocity.tech.v1/id: queue
   name: "{velocity.v1.generate:cloudResourcePrefix}-my-queue.fifo-var-service-id"
 spec:
+  fifoQueue: "true"
   queueName: "{velocity.v1.generate:cloudResourcePrefix}-my-queue.fifo"
