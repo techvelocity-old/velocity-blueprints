@@ -5,7 +5,7 @@ apiVersion: sqs.velocity.tech/v1
 kind: Queue
 metadata:
   annotations:
-    velocity.tech.v1/exports-name: path="spec.name"
+    velocity.tech.v1/exports-name: path="spec.queueName"
     velocity.tech.v1/id: queue
   name: "{velocity.v1.generate:cloudResourcePrefix}-my-queue.fifo-var-service-id"
 spec:
