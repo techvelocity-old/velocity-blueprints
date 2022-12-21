@@ -1,12 +1,8 @@
-# Prometheus-Grafana-Example
+# Prometheus-Example
 
-Run the following command from the `prometheus-example` directory to deploy pre-configured instances of Prometheus and Grafana to a Velocity environment. 
+Run the following command from the `prometheus-chart` directory to deploy Prometheus to a Velocity environment. 
 
 ```
-{ helm template grafana-chart --values=grafana-chart/velocity-values.yaml --name-template=velocity && helm template prometheus-chart --values=prometheus-chart/velocity-values.yaml --name-template=velocity } | veloctl env create -f -
+helm template . -f velocity-values.yaml | veloctl env create -f -
 ```
-
-## Default Grafana Credentials:
-**username:** admin
-**password:** admin
 
