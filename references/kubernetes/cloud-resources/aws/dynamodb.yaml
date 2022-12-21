@@ -10,29 +10,14 @@ metadata:
 spec:
   tableName: "{velocity.v1.generate:cloudResourcePrefix}-my-table"
   attributeDefinitions:
-    - attributeName: ForumName
-      attributeType: S
-    - attributeName: LastPostDateTime
-      attributeType: S
-    - attributeName: Subject
+    - attributeName: ID
       attributeType: S
   keySchema:
-    - attributeName: ForumName
+    - attributeName: ID
       keyType: HASH
-    - attributeName: Subject
-      keyType: RANGE
-  localSecondaryIndexes:
-    - indexName: LastPostIndex
-      keySchema:
-        - attributeName: ForumName
-          keyType: HASH
-        - attributeName: LastPostDateTime
-          keyType: RANGE
-      projection:
-        projectionType: KEYS_ONLY
   provisionedThroughput:
     readCapacityUnits: 5
     writeCapacityUnits: 5
   streamSpecification:
     streamEnabled: true
-    streamViewType: "NEW_AND_OLD_IMAGES"
+    streamViewType: NEW_AND_OLD_IMAGES
