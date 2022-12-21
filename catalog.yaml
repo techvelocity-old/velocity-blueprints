@@ -10,9 +10,9 @@ services:
     path: ./references/kubernetes/common-containers/generic-service.yaml
   redis:
     path: ./references/kubernetes/common-containers/redis.yaml
-  S3:
+  s3:
     path: ./references/kubernetes/cloud-resources/aws/s3.yaml
-  DynamoDB:
+  dynamodb:
     path: ./references/kubernetes/cloud-resources/aws/dynamodb.yaml
-  SQS:
+  sqs:
     path: ./references/kubernetes/cloud-resources/aws/sqs.yaml
