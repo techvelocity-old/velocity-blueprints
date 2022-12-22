@@ -6,6 +6,3 @@ app = FastAPI()
 @app.get('/')
 async def index():
     return HTMLResponse("<h1> Velocity Env Sync Example </h1>")
-
-
-    
