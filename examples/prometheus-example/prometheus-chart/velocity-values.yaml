@@ -20,12 +20,14 @@ prometheus:
       name:
       annotations:
         velocity.tech.v1/associateTo: velocity-prometheus-server
-
+      ingress:
+        enabled: true
+        hosts:
+          - "prometheus-{velocity.v1.domainSuffix}"
   alertmanager:
     fullnameOverride: "alertmanager-{velocity.v1.envName}"
     deploymentAnnotations:
       velocity.tech.v1/id: alertmanager
-
   kube-state-metrics:
     fullnameOverride: "kube-state-metrics-{velocity.v1.envName}"
     serviceAccount:
@@ -33,19 +35,43 @@ prometheus:
         velocity.tech.v1/associateTo: velocity-kube-state-metrics
     annotations:
       velocity.tech.v1/id: kube-state-metrics
-
   nodeExporter:
     annotations:
       velocity.tech.v1/id: nodeExporter
-
   server:
     fullnameOverride: "server-{velocity.v1.envName}"
     deploymentAnnotations: 
       velocity.tech.v1/id: server
-
-
   pushgateway:
     fullnameOverride: "pushgateway-{velocity.v1.envName}"
     deploymentAnnotations:
       velocity.tech.v1/id: pushgateway
-
+  # extraScrapeConfigs: |
+  #   - job_name: 'web-api'
+  #     scrape_interval: 2s
+  #     metrics_path: /metrics
+  #     static_configs:
+  #       - targets:
+  #         - "web-api:8000"         # <clusterIP Service Name>:port
+grafana:
+  rbac:
+    namespaced: true
+  serviceAccount:
+    annotations: 
+      velocity.tech.v1/associateTo: velocity-grafana
+  testFramework:
+    enabled: false
+  ingress:
+    enabled: true
+    hosts:
+      - grafana-{velocity.v1.domainSuffix}
+  adminPassword: admin
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+      - name: Prometheus
+        type: prometheus
+        url: "http://server-{velocity.v1.envName}"
+        access: proxy
+        isDefault: true
