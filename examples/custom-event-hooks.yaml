@@ -1,76 +1,14 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "job-cleanup-cloudfront"
+  name: job-init-cloudfront
   annotations:
-    velocity.tech.v1/id: "job-cleanup-cloudfront" # Velocity service identifier
-    velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
-    velocity.tech.v1/runPolicy: destroy/afterAll
-spec:
-  template:
-    metadata:
-      name: "job-cleanup-cloudfront"
-    spec:
-      restartPolicy: Never
-      containers:
-        - name: "cleanup-cloudfront"
-          image: amazon/aws-cli
-          command: ["/bin/bash", "-c"]
-          args:
-            - |-
-              cat > ./run.sh <<EOF
-              curl -sSLf "\$(curl -sSLf https://api.github.com/repos/tomwright/dasel/releases/latest | grep browser_download_url | grep linux_amd64 | grep -v .gz | cut -d\" -f 4)" -L -o dasel && chmod +x dasel ;
-              cp ./dasel /usr/local/bin/dasel ;
-              CF_ID=\$(aws cloudfront list-distributions --query "DistributionList.Items[].{ID: Id, OriginDomainName: Origins.Items[0].DomainName}[?contains(OriginDomainName, '\$(echo \$BUCKET_NAME)')] | [0]" | dasel -r json 'ID' | tr -d '"');
-              echo "Retrieved cloudfront distribution with ID: \$(echo \$CF_ID)" ; 
-              aws cloudfront get-distribution-config --id \$CF_ID > config.json ;
-              CF_ETAG=\$(cat config.json | dasel -r json 'ETag' | tr -d '"') ;
-              cat config.json | dasel -r json 'DistributionConfig' | dasel put -r json -t bool -v false 'Enabled' > disabled-config.json ;
-              echo "Trying to disable cloudfront distribution" ;
-              aws cloudfront update-distribution --id \$(echo \$CF_ID) --if-match \$(echo \$CF_ETAG) --distribution-config "file://\$(pwd)/disabled-config.json" > disabled-config-res.json ;
-              CF_ETAG_DISABLED=\$(cat disabled-config-res.json | dasel -r json 'ETag' | tr -d '"') ;
-              echo "Disabled cloudfront distribution successfully!" ;
-              echo "Waiting for cloudfront distribution to be ready for deletion..." ;
-              aws cloudfront wait distribution-deployed --id \$(echo \$CF_ID) ;
-              aws cloudfront delete-distribution --id \$(echo \$CF_ID) --if-match \$(echo \$CF_ETAG_DISABLED) ;
-              echo "Finished destroying cloudfront!" ;
-              EOF
-              chmod +x ./run.sh; ./run.sh
-          env:
-            - name: BUCKET_NAME
-              value: "{velocity.v1:bucket.exports.bucket-name}"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: aws-cred-developer
-                  key: AWS_ACCESS_KEY_ID
-                  optional: false
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: aws-cred-developer
-                  key: AWS_SECRET_ACCESS_KEY
-                  optional: false
-            - name: AWS_SESSION_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: aws-cred-developer
-                  key: AWS_SESSION_TOKEN
-                  optional: false
-            - name: AWS_REGION
-              value: "{velocity.v1.aws.region}"
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: "job-init-cloudfront"
-  annotations:
-    velocity.tech.v1/id: "job-init-cloudfront" # Velocity service identifier
+    velocity.tech.v1/id: job-init-cloudfront # Velocity service identifier
     velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
 spec:
   template:
     metadata:
-      name: "job-init-cloudfront"
+      name: job-init-cloudfront
     spec:
       restartPolicy: Never
       containers:
@@ -79,14 +17,20 @@ spec:
           command: ["/bin/bash", "-c"]
           args:
             - |-
-              cat > ./run.sh <<EOF
-              aws cloudfront create-distribution --origin-domain-name \$(echo \$BUCKET_NAME).s3.eu-central-1.amazonaws.com --default-root-object index.html > distribution.json
-              echo "Created cloudfront distribution with S3 bucket as origin. \$(cat distribution.json | grep DomainName | head -1 | tr -d "[:blank:]" ) \$(cat distribution.json | grep Id | head -1 | tr -d "[:blank:]" | tr -d ',')"
-              echo "Waiting for distribution to be deployed..."
-              aws cloudfront wait distribution-deployed --id \$(cat distribution.json | grep Id | head -1 | sed -n 's/"Id"://p' | tr -d '"' | tr -d "[:blank:]" | tr -d ',') ;
-              echo "Distribution deployed successfully"
-              EOF
-              chmod +x ./run.sh; ./run.sh
+              set -e
+              yum install jq -y
+
+              echo "Creating cloudfront distribution with an S3 bucket origin..."
+              ORIGIN_DOMAIN_NAME=$BUCKET_NAME.s3.eu-central-1.amazonaws.com
+              aws cloudfront create-distribution \
+                --origin-domain-name $ORIGIN_DOMAIN_NAME \
+                --default-root-object index.html > distribution.json
+
+              echo "Deploying Cloudfront Distribution..."
+              DIST_ID=$(cat distribution.json | jq -r '.Distribution.Id')
+              aws cloudfront wait distribution-deployed --id $DIST_ID
+
+              echo "Cloudfront Distribution deployed successfully"
           env:
             - name: BUCKET_NAME
               value: "{velocity.v1:bucket.exports.bucket-name}"
@@ -116,34 +60,21 @@ apiVersion: v1
 metadata:
   name: configmap-seed-s3
 data:
-  index.html:
-    <!DOCTYPE html>
+  index.html: <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>Hello world!</title>
-        
-        <meta charset="utf-8">
-        
-        <link rel="stylesheet" href="./style.css"/>
+    <title>Hello world!</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./style.css"/>
     </head>
-    
     <body>
-    
     <h1>Hello world!</h1>
-    
     </body>
     </html>
   style.css: |
-    @font-face {
-    font-family: AmazonEmber;
-    src: url("https://a0.awsstatic.com/libra-css/fonts/amazon-ember/AmazonEmber_Lt.woff");
-    font-weight: 400;
-    font-style: normal;
-    font-size: 12pt;
-    }
     body {
       background: #236192;
-      font-family: AmazonEmber, Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-family: Helvetica, Arial, sans-serif;
       color: #ffffff;
       max-width: 75em;
       margin: 0 auto;
@@ -158,43 +89,31 @@ data:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "job-seed-s3"
+  name: job-seed-s3
   annotations:
-    velocity.tech.v1/id: job-seed-s3
+    velocity.tech.v1/id: job-seed-s3 # Velocity service identifier
     velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
 spec:
   template:
     metadata:
-      name: "job-seed-s3"
+      name: job-seed-s3
     spec:
       restartPolicy: Never
       containers:
         - name: "seed-s3"
           image: amazon/aws-cli
-          command: ["/bin/bash", "-c"]
+          command: [/bin/bash, -c]
           args:
-            - aws s3 cp /scripts/index.html s3://$(echo $BUCKET_NAME)/index.html --acl public-read && aws s3 cp /scripts/style.css s3://$(echo $BUCKET_NAME)/style.css --acl public-read
+            - |
+              aws s3 cp /scripts/index.html s3://$(echo $BUCKET_NAME)/index.html \
+                --acl public-read && \
+              aws s3 cp /scripts/style.css s3://$(echo $BUCKET_NAME)/style.css --acl public-read
+          envFrom:
+            - secretRef:
+                name: aws-cred-developer
           env:
             - name: BUCKET_NAME
               value: "{velocity.v1:bucket.exports.bucket-name}"
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: aws-cred-developer
-                  key: AWS_ACCESS_KEY_ID
-                  optional: false
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: aws-cred-developer
-                  key: AWS_SECRET_ACCESS_KEY
-                  optional: false
-            - name: AWS_SESSION_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: aws-cred-developer
-                  key: AWS_SESSION_TOKEN
-                  optional: false
             - name: AWS_REGION
               value: "{velocity.v1.aws.region}"
           volumeMounts:
@@ -214,4 +133,56 @@ metadata:
   name: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-demo-bucket"
 spec:
   name: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-demo-bucket"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-cleanup-cloudfront
+  annotations:
+    velocity.tech.v1/id: job-cleanup-cloudfront # Velocity service identifier
+    velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
+    velocity.tech.v1/runPolicy: destroy/afterAll
+spec:
+  template:
+    metadata:
+      name: job-cleanup-cloudfront
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: "cleanup-cloudfront"
+          image: amazon/aws-cli
+          command: ["/bin/bash", "-c"]
+          args:
+            - |-
+              set -e
+              yum install jq -y
+
+              echo "Disabling Cloudfront Distribution..."
+
+              QUERY="(DistributionList.Items[].{ID: Id, OriginDomainName: Origins.Items[0].DomainName}[?contains(OriginDomainName, '$BUCKET_NAME')] | [0]).ID"
+              CF_ID=$(aws cloudfront list-distributions --query "$QUERY" --output text)
+
+              aws cloudfront get-distribution-config --id $CF_ID > config.json
+              cat config.json | jq '.DistributionConfig | .Enabled = false' > disabled-config.json
+
+              CF_ETAG=$(cat config.json | jq -r '.ETag')
+              aws cloudfront update-distribution --id $CF_ID --if-match $CF_ETAG \
+                --distribution-config "file://$(pwd)/disabled-config.json" > disabled-config-res.json
+
+              echo "Waiting for Cloudfront Distribution to be ready for deletion..."
+              aws cloudfront wait distribution-deployed --id $CF_ID
+
+              echo "Destroying Cloudfront Distribution..."
+              CF_ETAG_DISABLED=$(cat disabled-config-res.json | jq -r '.ETag')
+              aws cloudfront delete-distribution --id $CF_ID --if-match $CF_ETAG_DISABLED
+
+              echo "Finished destroying Cloudfront Distribution"
+          envFrom:
+            - secretRef:
+                name: aws-cred-developer
+          env:
+            - name: BUCKET_NAME
+              value: "{velocity.v1:bucket.exports.bucket-name}"
+            - name: AWS_REGION
+              value: "{velocity.v1.aws.region}"
 ---
