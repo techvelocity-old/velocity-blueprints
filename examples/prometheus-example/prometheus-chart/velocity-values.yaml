@@ -39,20 +39,13 @@ prometheus:
     annotations:
       velocity.tech.v1/id: nodeExporter
   server:
-    fullnameOverride: "server-{velocity.v1.envName}"
+    fullnameOverride: "prometheus-server-{velocity.v1.envName}"
     deploymentAnnotations: 
-      velocity.tech.v1/id: server
+      velocity.tech.v1/id: prometheus-server
   pushgateway:
     fullnameOverride: "pushgateway-{velocity.v1.envName}"
     deploymentAnnotations:
       velocity.tech.v1/id: pushgateway
-  # extraScrapeConfigs: |
-  #   - job_name: 'web-api'
-  #     scrape_interval: 2s
-  #     metrics_path: /metrics
-  #     static_configs:
-  #       - targets:
-  #         - "web-api:8000"         # <clusterIP Service Name>:port
 grafana:
   rbac:
     namespaced: true
@@ -70,8 +63,8 @@ grafana:
     datasources.yaml:
       apiVersion: 1
       datasources:
-      - name: Prometheus
-        type: prometheus
-        url: "http://server-{velocity.v1.envName}"
-        access: proxy
-        isDefault: true
+        - name: Prometheus
+          type: prometheus
+          url: "http://prometheus-server-{velocity.v1.envName}"
+          access: proxy
+          isDefault: true
