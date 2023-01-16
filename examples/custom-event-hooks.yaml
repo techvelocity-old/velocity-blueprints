@@ -1,0 +1,188 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-init-cloudfront
+  annotations:
+    velocity.tech.v1/id: job-init-cloudfront # Velocity service identifier
+    velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
+spec:
+  template:
+    metadata:
+      name: job-init-cloudfront
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: "init-cloudfront"
+          image: amazon/aws-cli
+          command: ["/bin/bash", "-c"]
+          args:
+            - |-
+              set -e
+              yum install jq -y
+
+              echo "Creating cloudfront distribution with an S3 bucket origin..."
+              ORIGIN_DOMAIN_NAME=$BUCKET_NAME.s3.eu-central-1.amazonaws.com
+              aws cloudfront create-distribution \
+                --origin-domain-name $ORIGIN_DOMAIN_NAME \
+                --default-root-object index.html > distribution.json
+
+              echo "Deploying Cloudfront Distribution..."
+              DIST_ID=$(cat distribution.json | jq -r '.Distribution.Id')
+              aws cloudfront wait distribution-deployed --id $DIST_ID
+
+              echo "Cloudfront Distribution deployed successfully"
+          env:
+            - name: BUCKET_NAME
+              value: "{velocity.v1:bucket.exports.bucket-name}"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-cred-developer
+                  key: AWS_ACCESS_KEY_ID
+                  optional: false
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-cred-developer
+                  key: AWS_SECRET_ACCESS_KEY
+                  optional: false
+            - name: AWS_SESSION_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: aws-cred-developer
+                  key: AWS_SESSION_TOKEN
+                  optional: false
+            - name: AWS_REGION
+              value: "{velocity.v1.aws.region}"
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: configmap-seed-s3
+data:
+  index.html: <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <title>Hello world!</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./style.css"/>
+    </head>
+    <body>
+    <h1>Hello world!</h1>
+    </body>
+    </html>
+  style.css: |
+    body {
+      background: #236192;
+      font-family: Helvetica, Arial, sans-serif;
+      color: #ffffff;
+      max-width: 75em;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-seed-s3
+  annotations:
+    velocity.tech.v1/id: job-seed-s3 # Velocity service identifier
+    velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
+spec:
+  template:
+    metadata:
+      name: job-seed-s3
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: "seed-s3"
+          image: amazon/aws-cli
+          command: [/bin/bash, -c]
+          args:
+            - |
+              aws s3 cp /scripts/index.html s3://$(echo $BUCKET_NAME)/index.html \
+                --acl public-read && \
+              aws s3 cp /scripts/style.css s3://$(echo $BUCKET_NAME)/style.css --acl public-read
+          envFrom:
+            - secretRef:
+                name: aws-cred-developer
+          env:
+            - name: BUCKET_NAME
+              value: "{velocity.v1:bucket.exports.bucket-name}"
+            - name: AWS_REGION
+              value: "{velocity.v1.aws.region}"
+          volumeMounts:
+            - mountPath: /scripts
+              name: seed-s3-vol
+      volumes:
+        - name: seed-s3-vol
+          configMap:
+            name: configmap-seed-s3
+---
+apiVersion: s3.services.k8s.aws/v1alpha1
+kind: Bucket
+metadata:
+  annotations:
+    velocity.tech.v1/id: bucket # Velocity service identifier
+    velocity.tech.v1/exports-bucket-name: path="spec.name" # Velocity service identifier
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-demo-bucket"
+spec:
+  name: "{velocity.v1.generate:cloudResourcePrefix(seed=bucket)}-{velocity.v1.envName}-demo-bucket"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: job-cleanup-cloudfront
+  annotations:
+    velocity.tech.v1/id: job-cleanup-cloudfront # Velocity service identifier
+    velocity.tech.v1/dependsOn: bucket # Velocity dependencies declaration
+    velocity.tech.v1/runPolicy: destroy/afterAll
+spec:
+  template:
+    metadata:
+      name: job-cleanup-cloudfront
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: "cleanup-cloudfront"
+          image: amazon/aws-cli
+          command: ["/bin/bash", "-c"]
+          args:
+            - |-
+              set -e
+              yum install jq -y
+
+              echo "Disabling Cloudfront Distribution..."
+
+              QUERY="(DistributionList.Items[].{ID: Id, OriginDomainName: Origins.Items[0].DomainName}[?contains(OriginDomainName, '$BUCKET_NAME')] | [0]).ID"
+              CF_ID=$(aws cloudfront list-distributions --query "$QUERY" --output text)
+
+              aws cloudfront get-distribution-config --id $CF_ID > config.json
+              cat config.json | jq '.DistributionConfig | .Enabled = false' > disabled-config.json
+
+              CF_ETAG=$(cat config.json | jq -r '.ETag')
+              aws cloudfront update-distribution --id $CF_ID --if-match $CF_ETAG \
+                --distribution-config "file://$(pwd)/disabled-config.json" > disabled-config-res.json
+
+              echo "Waiting for Cloudfront Distribution to be ready for deletion..."
+              aws cloudfront wait distribution-deployed --id $CF_ID
+
+              echo "Destroying Cloudfront Distribution..."
+              CF_ETAG_DISABLED=$(cat disabled-config-res.json | jq -r '.ETag')
+              aws cloudfront delete-distribution --id $CF_ID --if-match $CF_ETAG_DISABLED
+
+              echo "Finished destroying Cloudfront Distribution"
+          envFrom:
+            - secretRef:
+                name: aws-cred-developer
+          env:
+            - name: BUCKET_NAME
+              value: "{velocity.v1:bucket.exports.bucket-name}"
+            - name: AWS_REGION
+              value: "{velocity.v1.aws.region}"
+---
