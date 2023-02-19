@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    velocity.tech.v1/id: web-api
+  name: web-api
+  labels:
+    app: web-api
+spec:
+  selector:
+    matchLabels:
+      api: web-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web-api
+        api: web-api
+    spec:
+      containers:
+        - name: web-api
+          image: jdvincent/velocity-kubed-example:latest
+          env:
+            - name: USER_NAME
+              valueFrom:
+                secretKeyRef:
+                    name: test-secret
+                    key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                    name: test-secret
+                    key: password
+          ports:
+            - name: web-api
+              containerPort: 8000
+              protocol: TCP
+          volumeMounts:
+            - name: secret-volume
+              mountPath: /etc/secret-volume
+              readOnly: true
+      volumes:
+        - name: secret-volume
+          secret:
+            secretName: test-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-api
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: web-api
+  selector:
+    app: web-api
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-api
+spec:
+  rules:
+    - host: "api-{velocity.v1.domainSuffix}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web-api
+                port:
+                  number: 8000
