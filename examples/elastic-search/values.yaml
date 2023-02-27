@@ -1,0 +1,15 @@
+elasticsearch:
+  replicas: 1
+  tests:
+    enabled: false
+kibana:
+  ingress:
+    enabled: true
+    className: null
+    pathtype: Prefix
+    hosts:
+      - host: "kibana-{velocity.v1.domainSuffix}"
+        paths:
+          - path: /
+  annotations:
+    velocity.tech.v1/dependsOn: elasticsearch-master
