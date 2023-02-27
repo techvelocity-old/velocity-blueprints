@@ -1,0 +1,4 @@
+elasticsearch:
+  replicas: 1
+  tests:
+    enabled: false
