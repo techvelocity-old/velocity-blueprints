@@ -22,11 +22,13 @@ spec:
                 secretKeyRef:
                   name: elasticsearch-master-credentials
                   key: password
+            - name: ELASTIC_INDEX_NAME
+              value: kibana_sample_data_flights
           name: seeding
           image: elasticdump/elasticsearch-dump:latest
           command: ["/bin/bash", "-c"]
           args:
-            - NODE_TLS_REJECT_UNAUTHORIZED=0 elasticdump --input=/mnt/seeds/data.json --output=https://elastic:$ELASTIC_PASSWORD@elasticsearch-master:9200/kibana_sample_data_flights --type=data
+            - NODE_TLS_REJECT_UNAUTHORIZED=0 elasticdump --input=/mnt/seeds/data.json --output=https://elastic:$ELASTIC_PASSWORD@elasticsearch-master:9200/$ELASTIC_INDEX_NAME --type=data
           volumeMounts:
             - name: seed-files
               mountPath: /mnt/seeds/
