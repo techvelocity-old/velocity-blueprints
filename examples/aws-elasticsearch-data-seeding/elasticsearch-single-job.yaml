@@ -1,0 +1,50 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "job1"
+  annotations:
+    velocity.tech.v1/id: es-seeding-example # Velocity service identifier
+    velocity.tech.v1/dependsOn: elasticsearch-master # Velocity dependencies declaration
+  labels:
+    app: seeding
+spec:
+  template:
+    metadata:
+      name: "job1"
+      labels:
+        app: seeding
+    spec:
+      containers:
+        - env:
+            - name: ELASTIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: elasticsearch-master-credentials
+                  key: password
+          name: seeding
+          image: elasticdump/elasticsearch-dump:latest
+          command: ["/bin/bash", "-c"]
+          args:
+            - NODE_TLS_REJECT_UNAUTHORIZED=0 elasticdump --input=/mnt/seeds/data.json --output=https://elastic:$ELASTIC_PASSWORD@elasticsearch-master:9200/kibana_sample_data_flights --type=data
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      initContainers:
+        - name: download-es-json
+          image: amazon/aws-cli:2.0.6
+          command: [ "/bin/sh", "-c" ]
+          env:
+            - name: SNAPSHOT_FILE
+              value: "{velocity.v1.snapshot}"
+          args:
+            - aws s3 cp $SNAPSHOT_FILE /mnt/seeds/data.json
+          volumeMounts:
+            - name: seed-files
+              mountPath: /mnt/seeds/
+              readOnly: false
+      volumes:
+        - name: seed-files
+          emptyDir: { }
+      restartPolicy: Never
