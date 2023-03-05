@@ -16,5 +16,5 @@ veloctl snapshot put --target es-seeding-example -f index_data.json --default
 ```
 helm repo add elastic https://helm.elastic.co
 
-{ helm template elastic/elasticsearch --set replicas=1 --set tests.enabled=false && cat elasticsearch-single-job.yaml } | veloctl env create -f -
+{ helm template elastic/elasticsearch --set replicas=1 --set tests.enabled=false && cat elasticsearch-seed-job.yaml } | veloctl env create -f -
 ```
