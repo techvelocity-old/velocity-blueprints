@@ -11,7 +11,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: "job1"
+      name: "elasticsearch-seeding-job"
       labels:
         app: seeding
     spec:
