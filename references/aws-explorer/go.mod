@@ -9,5 +9,5 @@ require (
 
 require (
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5 // indirect
+	golang.org/x/net v0.7.0 // indirect
 )
