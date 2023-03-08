@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "job1"
+  name: "elasticsearch-seeding-job"
   annotations:
     velocity.tech.v1/id: es-seeding-example # Velocity service identifier
     velocity.tech.v1/dependsOn: elasticsearch-master # Velocity dependencies declaration
