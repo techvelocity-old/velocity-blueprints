@@ -160,7 +160,7 @@ spec:
               value: '{velocity.v1:psql.exports.dbname}'
           command: ["/bin/sh", "-c"]
           args:
-            - while true; do psql $DB_URI/$DB_NAME -c 'SELECT * FROM tasks'; sleep 10; done
+            - while true; do psql $DB_URI/$DB_NAME -c 'SELECT * FROM users'; sleep 10; done
           imagePullPolicy: IfNotPresent
           resources:
             limits:
